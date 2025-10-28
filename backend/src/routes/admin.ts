@@ -106,8 +106,8 @@ router.get('/config', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const config = await prisma.configuration.findMany();
 
-    const configObject = config.reduce((acc: Record<string, string>, item: { name: string; value: string }) => {
-      acc[item.name] = item.value;
+    const configObject = config.reduce((acc: Record<string, string>, item: { name: string; app: string | null; value: string | null }) => {
+      acc[item.name] = item.value || '';
       return acc;
     }, {} as Record<string, string>);
 
