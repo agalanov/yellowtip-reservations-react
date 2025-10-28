@@ -122,20 +122,7 @@ async function main() {
 
   console.log('✅ Default currency created');
 
-  // Create default service category
-  const defaultCategory = await prisma.serviceCategory.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      name: 'General Services',
-      parentId: 0,
-      status: true,
-      colorId: 1,
-    },
-  });
-
-  // Create default color
+  // Create default color first
   await prisma.colorTable.upsert({
     where: { id: 1 },
     update: {},
@@ -146,6 +133,19 @@ async function main() {
       textColor: 'ffffff',
       beforeColor: 'ffffff',
       afterColor: 'ffffff',
+    },
+  });
+
+  // Create default service category
+  const defaultCategory = await prisma.serviceCategory.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: 'General Services',
+      parentId: 0,
+      status: true,
+      colorId: 1,
     },
   });
 
