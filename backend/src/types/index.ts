@@ -25,8 +25,8 @@ export interface LoginResponse {
   user: {
     id: number;
     loginId: string;
-    firstName?: string;
-    lastName?: string;
+    firstName?: string | null;
+    lastName?: string | null;
     status: string;
   };
 }

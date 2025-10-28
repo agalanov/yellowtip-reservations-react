@@ -15,8 +15,16 @@ router.post('/login', [
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
 ], async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
+    console.log('🔐 Login attempt:', {
+      body: req.body,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString()
+    });
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Validation failed:', errors.array());
       return res.status(400).json({
         success: false,
         error: {
@@ -27,6 +35,7 @@ router.post('/login', [
     }
 
     const { loginId, password }: LoginRequest = req.body;
+    console.log('📝 Login data received:', { loginId, passwordLength: password?.length });
 
     // Find user by login ID
     const user = await prisma.account.findUnique({
@@ -43,18 +52,31 @@ router.post('/login', [
       },
     });
 
+    console.log('👤 User lookup result:', { 
+      found: !!user, 
+      userId: user?.id, 
+      status: user?.status,
+      loginId: user?.loginId 
+    });
+
     if (!user) {
+      console.log('❌ User not found for loginId:', loginId);
       throw createError('Invalid credentials', 401);
     }
 
     // Check if account is active
     if (user.status !== 'ACTIVE') {
+      console.log('❌ Account is locked:', { userId: user.id, status: user.status });
       throw createError('Account is locked', 401);
     }
 
     // Verify password
+    console.log('🔑 Verifying password...');
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('🔑 Password verification result:', { valid: isPasswordValid });
+    
     if (!isPasswordValid) {
+      console.log('❌ Invalid password for user:', user.loginId);
       throw createError('Invalid credentials', 401);
     }
 
@@ -82,17 +104,27 @@ router.post('/login', [
       user: {
         id: user.id,
         loginId: user.loginId,
-        firstName: user.firstName || undefined,
-        lastName: user.lastName || undefined,
+        firstName: user.firstName,
+        lastName: user.lastName,
         status: user.status,
       },
     };
+
+    console.log('✅ Login successful:', { 
+      userId: user.id, 
+      loginId: user.loginId,
+      tokenGenerated: !!token 
+    });
 
     res.json({
       success: true,
       data: response,
     });
   } catch (error) {
+    console.log('❌ Login error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return next(error);
   }
 });
@@ -139,8 +171,8 @@ router.get('/verify', async (req, res, next) => {
         user: {
           id: user.id,
           loginId: user.loginId,
-          firstName: user.firstName || undefined,
-          lastName: user.lastName || undefined,
+          firstName: user.firstName,
+          lastName: user.lastName,
           status: user.status,
         },
       },

@@ -9,8 +9,8 @@ export interface AuthRequest extends Request {
   user?: {
     id: number;
     loginId: string;
-    firstName?: string;
-    lastName?: string;
+    firstName?: string | null;
+    lastName?: string | null;
     status: string;
   };
 }
