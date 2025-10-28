@@ -68,7 +68,7 @@ export const authorize = (...roles: string[]) => {
         include: { role: true },
       });
 
-      const userRoleNames = userRoles.map(ur => ur.role.name);
+      const userRoleNames = userRoles.map((ur: any) => ur.role.name);
 
       const hasRequiredRole = roles.some(role => userRoleNames.includes(role));
 

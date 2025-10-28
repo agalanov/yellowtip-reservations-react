@@ -14,7 +14,7 @@ router.get('/', [
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
   query('categoryId').optional().isInt().withMessage('Category ID must be an integer'),
   query('active').optional().isBoolean().withMessage('Active must be a boolean'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -92,7 +92,7 @@ router.get('/', [
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -139,7 +139,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
       data: service,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -151,7 +151,7 @@ router.post('/', [
   body('description').optional().isString().withMessage('Description must be a string'),
   body('price').optional().isFloat().withMessage('Price must be a number'),
   body('duration').optional().isInt().withMessage('Duration must be an integer'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -227,7 +227,7 @@ router.post('/', [
       data: service,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -238,7 +238,7 @@ router.put('/:id', [
   body('price').optional().isFloat().withMessage('Price must be a number'),
   body('duration').optional().isInt().withMessage('Duration must be an integer'),
   body('active').optional().isBoolean().withMessage('Active must be a boolean'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -289,7 +289,7 @@ router.put('/:id', [
       data: service,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -333,7 +333,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res, next) => {
       message: 'Service deleted successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

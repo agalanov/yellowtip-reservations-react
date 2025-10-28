@@ -14,7 +14,7 @@ router.get('/', [
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
   query('active').optional().isBoolean().withMessage('Active must be a boolean'),
   query('serviceId').optional().isInt().withMessage('Service ID must be an integer'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -104,7 +104,7 @@ router.get('/', [
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -173,7 +173,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
       data: room,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -183,7 +183,7 @@ router.post('/', [
   body('description').optional().isString().withMessage('Description must be a string'),
   body('priority').optional().isInt({ min: 1, max: 10 }).withMessage('Priority must be between 1 and 10'),
   body('active').optional().isBoolean().withMessage('Active must be a boolean'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -225,7 +225,7 @@ router.post('/', [
       data: room,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -235,7 +235,7 @@ router.put('/:id', [
   body('description').optional().isString().withMessage('Description must be a string'),
   body('priority').optional().isInt({ min: 1, max: 10 }).withMessage('Priority must be between 1 and 10'),
   body('active').optional().isBoolean().withMessage('Active must be a boolean'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -286,7 +286,7 @@ router.put('/:id', [
       data: room,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -330,14 +330,14 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res, next) => {
       message: 'Room deleted successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
 // Add service to room
 router.post('/:id/services', [
   body('serviceId').isInt().withMessage('Service ID must be an integer'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -384,7 +384,7 @@ router.post('/:id/services', [
       message: 'Service added to room successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -408,7 +408,7 @@ router.delete('/:id/services/:serviceId', authenticate, async (req: AuthRequest,
       message: 'Service removed from room successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

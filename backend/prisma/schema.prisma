@@ -31,6 +31,7 @@ model Account {
   roles             AccountRole[]
   sessions          Session[]
   logs              Log[]
+  bookingLogs       BookingLog[]
 
   @@map("ytr_accounts")
 }
@@ -134,8 +135,9 @@ model Room {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  services    RoomService[]
-  bookings    Booking[]
+  services              RoomService[]
+  bookings              Booking[]
+  roomServiceCategories RoomServiceCategory[]
 
   @@map("ytr_room")
 }
@@ -266,7 +268,7 @@ model GuestAttribute {
   guest       Guest           @relation(fields: [guestId], references: [id], onDelete: Cascade)
   attribute   GuestAttributeName @relation(fields: [attributeId], references: [id], onDelete: Cascade)
 
-  @@id([guestId, attributeId, multiple])
+  @@unique([guestId, attributeId, multiple])
   @@map("ytr_guest_guest_attributename")
 }
 
@@ -313,7 +315,7 @@ model TherapistAttribute {
   therapist   Therapist           @relation(fields: [therapistId], references: [id], onDelete: Cascade)
   attribute   TherapistAttributeName @relation(fields: [attributeId], references: [id], onDelete: Cascade)
 
-  @@id([therapistId, attributeId, multiple])
+  @@unique([therapistId, attributeId, multiple])
   @@map("ytr_therapist_therapistattrib")
 }
 

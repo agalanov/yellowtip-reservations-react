@@ -13,7 +13,7 @@ router.get('/', [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
   query('serviceId').optional().isInt().withMessage('Service ID must be an integer'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -107,7 +107,7 @@ router.get('/', [
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -189,7 +189,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
       data: therapist,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -200,7 +200,7 @@ router.post('/', [
   body('priority').optional().isInt({ min: 1, max: 10 }).withMessage('Priority must be between 1 and 10'),
   body('attributes').optional().isArray().withMessage('Attributes must be an array'),
   body('services').optional().isArray().withMessage('Services must be an array'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -278,7 +278,7 @@ router.post('/', [
       data: therapistWithRelations,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -289,7 +289,7 @@ router.put('/:id', [
   body('priority').optional().isInt({ min: 1, max: 10 }).withMessage('Priority must be between 1 and 10'),
   body('attributes').optional().isArray().withMessage('Attributes must be an array'),
   body('services').optional().isArray().withMessage('Services must be an array'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -394,7 +394,7 @@ router.put('/:id', [
       data: therapistWithRelations,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -437,7 +437,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res, next) => {
       message: 'Therapist deleted successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

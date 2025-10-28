@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 router.get('/', [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -86,7 +86,7 @@ router.get('/', [
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -153,7 +153,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
       data: guest,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -162,7 +162,7 @@ router.post('/', [
   body('firstName').optional().isString().withMessage('First name must be a string'),
   body('lastName').optional().isString().withMessage('Last name must be a string'),
   body('attributes').optional().isArray().withMessage('Attributes must be an array'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -219,7 +219,7 @@ router.post('/', [
       data: guestWithAttributes,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -228,7 +228,7 @@ router.put('/:id', [
   body('firstName').optional().isString().withMessage('First name must be a string'),
   body('lastName').optional().isString().withMessage('Last name must be a string'),
   body('attributes').optional().isArray().withMessage('Attributes must be an array'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -304,7 +304,7 @@ router.put('/:id', [
       data: guestWithAttributes,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -347,7 +347,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res, next) => {
       message: 'Guest deleted successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

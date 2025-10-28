@@ -106,7 +106,7 @@ router.get('/config', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const config = await prisma.configuration.findMany();
 
-    const configObject = config.reduce((acc, item) => {
+    const configObject = config.reduce((acc: Record<string, string>, item: { name: string; value: string }) => {
       acc[item.name] = item.value;
       return acc;
     }, {} as Record<string, string>);
@@ -123,7 +123,7 @@ router.get('/config', authenticate, async (req: AuthRequest, res, next) => {
 // Update system configuration
 router.put('/config', [
   body('config').isObject().withMessage('Config must be an object'),
-], authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -152,7 +152,7 @@ router.put('/config', [
       message: 'Configuration updated successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -236,7 +236,7 @@ router.post('/users', [
   body('firstName').optional().isString().withMessage('First name must be a string'),
   body('lastName').optional().isString().withMessage('Last name must be a string'),
   body('status').optional().isIn(['ACTIVE', 'LOCKED']).withMessage('Status must be ACTIVE or LOCKED'),
-], authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -289,7 +289,7 @@ router.post('/users', [
       data: user,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -299,7 +299,7 @@ router.put('/users/:id', [
   body('lastName').optional().isString().withMessage('Last name must be a string'),
   body('status').optional().isIn(['ACTIVE', 'LOCKED']).withMessage('Status must be ACTIVE or LOCKED'),
   body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-], authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -352,7 +352,7 @@ router.put('/users/:id', [
       data: user,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

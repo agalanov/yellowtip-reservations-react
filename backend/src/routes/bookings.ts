@@ -20,7 +20,7 @@ router.get('/', [
   query('guestId').optional().isInt().withMessage('Guest ID must be an integer'),
   query('confirmed').optional().isBoolean().withMessage('Confirmed must be a boolean'),
   query('cancelled').optional().isBoolean().withMessage('Cancelled must be a boolean'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -121,7 +121,7 @@ router.get('/', [
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -194,7 +194,7 @@ router.post('/', [
   body('comment').optional().isString().withMessage('Comment must be a string'),
   body('duration').optional().isInt().withMessage('Duration must be an integer'),
   body('price').optional().isFloat().withMessage('Price must be a number'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -310,7 +310,7 @@ router.post('/', [
       data: booking,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -325,7 +325,7 @@ router.put('/:id', [
   body('confirmed').optional().isBoolean().withMessage('Confirmed must be a boolean'),
   body('cancelled').optional().isBoolean().withMessage('Cancelled must be a boolean'),
   body('comment').optional().isString().withMessage('Comment must be a string'),
-], authenticate, async (req: AuthRequest, res, next) => {
+], authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -391,7 +391,7 @@ router.put('/:id', [
       data: booking,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

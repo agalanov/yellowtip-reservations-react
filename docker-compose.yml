@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: yellowtip_user
       POSTGRES_PASSWORD: yellowtip_password
     ports:
-      - "5432:5432"
+      - "5436:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/init-db:/docker-entrypoint-initdb.d

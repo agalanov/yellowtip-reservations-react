@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 router.post('/login', [
   body('loginId').notEmpty().withMessage('Login ID is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-], async (req, res, next) => {
+], async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -93,7 +93,7 @@ router.post('/login', [
       data: response,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
