@@ -73,7 +73,7 @@ const QuickBookingButtons: React.FC<QuickBookingButtonsProps> = ({
       
       <Grid container spacing={2}>
         {quickBookings.map((quickBooking) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={quickBooking.id}>
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={quickBooking.id}>
             <Tooltip title={`Click to book ${quickBooking.name}`}>
               <Button
                 variant="outlined"

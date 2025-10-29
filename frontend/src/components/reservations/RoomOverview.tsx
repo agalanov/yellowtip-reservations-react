@@ -12,7 +12,6 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  Avatar,
   Card,
   CardContent,
   Grid,
@@ -21,26 +20,17 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from '@mui/material';
 import {
   Edit,
   Visibility,
   Person,
   AccessTime,
-  Room,
+  Room as RoomIcon,
   Spa,
 } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { Booking, Room as RoomType } from '../../types';
+import { Booking, Room } from '../../types';
 
 interface RoomOverviewProps {
   date: Dayjs;
@@ -51,7 +41,7 @@ interface RoomOverviewProps {
 }
 
 interface RoomBooking {
-  room: RoomType;
+  room: Room;
   bookings: Booking[];
 }
 
@@ -62,9 +52,9 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
   onEditBooking,
   onViewBooking,
 }) => {
-  const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [roomDialogOpen, setRoomDialogOpen] = useState(false);
-  const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>([]);
+  const [setTimeSlots] = useState<{ start: string; end: string }[]>([]);
 
   // Group bookings by room
   const roomBookings = useMemo(() => {
@@ -105,7 +95,7 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
     return slots;
   };
 
-  const getBookingForTimeSlot = (room: RoomType, timeSlot: { start: string; end: string }) => {
+  const getBookingForTimeSlot = (room: Room, timeSlot: { start: string; end: string }) => {
     const slotStart = dayjs(`${date.format('YYYY-MM-DD')} ${timeSlot.start}`);
     const slotEnd = dayjs(`${date.format('YYYY-MM-DD')} ${timeSlot.end}`);
     
@@ -133,7 +123,7 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
     return '#ff9800';
   };
 
-  const handleRoomClick = (room: RoomType) => {
+  const handleRoomClick = (room: Room) => {
     setSelectedRoom(room);
     setTimeSlots(generateTimeSlots());
     setRoomDialogOpen(true);
@@ -158,7 +148,7 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
               >
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Room sx={{ mr: 1, color: 'primary.main' }} />
+                    <RoomIcon sx={{ mr: 1, color: 'primary.main' }} />
                     <Typography variant="h6">{room.name}</Typography>
                   </Box>
                   
@@ -216,7 +206,7 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
         >
           <DialogTitle>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Room sx={{ mr: 1 }} />
+              <RoomIcon sx={{ mr: 1 }} />
               {selectedRoom?.name} - {date.format('dddd, MMMM D, YYYY')}
             </Box>
           </DialogTitle>
@@ -342,7 +332,7 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
                 <TableRow key={room.id}>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Room sx={{ mr: 1, color: 'primary.main' }} />
+                      <RoomIcon sx={{ mr: 1, color: 'primary.main' }} />
                       {room.name}
                     </Box>
                   </TableCell>

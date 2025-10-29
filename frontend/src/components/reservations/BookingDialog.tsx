@@ -21,7 +21,7 @@ import {
 import {
   Close,
   Person,
-  Room,
+  Room as RoomIcon,
   Spa,
   AccessTime,
   AttachMoney,
@@ -226,7 +226,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
         <DialogContent>
           <Grid container spacing={3} sx={{ mt: 1 }}>
             {/* Date and Time */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <DatePicker
                 label="Date"
                 value={selectedDate}
@@ -235,7 +235,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                 slotProps={{ textField: { fullWidth: true } }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TimePicker
                 label="Time"
                 value={selectedTime}
@@ -246,7 +246,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             </Grid>
 
             {/* Service Selection */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Service *</InputLabel>
                 <Select
@@ -276,7 +276,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             </Grid>
 
             {/* Room Selection */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Room *</InputLabel>
                 <Select
@@ -291,7 +291,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                   {rooms?.data?.map((room) => (
                     <MenuItem key={room.id} value={room.id}>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Room sx={{ mr: 1, color: 'primary.main' }} />
+                        <RoomIcon sx={{ mr: 1, color: 'primary.main' }} />
                         {room.name}
                       </Box>
                     </MenuItem>
@@ -301,7 +301,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             </Grid>
 
             {/* Guest Selection */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Guest *</InputLabel>
                 <Select
@@ -326,7 +326,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             </Grid>
 
             {/* Therapist Selection */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Therapist (Optional)</InputLabel>
                 <Select
@@ -353,13 +353,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             {/* Service Details */}
             {selectedService && (
               <>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12}}>
                   <Divider />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12}}>
                   <Typography variant="h6" sx={{ mb: 2 }}>Service Details</Typography>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
                     <AccessTime sx={{ mr: 1, color: 'primary.main' }} />
                     <Box>
@@ -368,7 +368,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                     </Box>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
                     <AttachMoney sx={{ mr: 1, color: 'primary.main' }} />
                     <Box>
@@ -377,7 +377,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                     </Box>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
                     <Spa sx={{ mr: 1, color: 'primary.main' }} />
                     <Box>
@@ -390,7 +390,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             )}
 
             {/* Comment */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Comment"
@@ -411,10 +411,10 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             {/* Booking Summary */}
             {(isViewMode || isEditMode) && (
               <>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12}}>
                   <Divider />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12}}>
                   <Typography variant="h6" sx={{ mb: 2 }}>Booking Summary</Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <Chip

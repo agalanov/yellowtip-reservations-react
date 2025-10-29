@@ -139,7 +139,7 @@ const ReservationsDemo: React.FC = () => {
         </Typography>
         <Grid container spacing={2}>
           {mockQuickBookings.map((quickBooking) => (
-            <Grid item xs={12} sm={6} md={4} key={quickBooking.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={quickBooking.id}>
               <Card
                 sx={{
                   cursor: 'pointer',
@@ -209,7 +209,7 @@ const ReservationsDemo: React.FC = () => {
         
         <Grid container spacing={2}>
           {mockBookings.map((booking) => (
-            <Grid item xs={12} sm={6} md={4} key={booking.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={booking.id}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -275,7 +275,7 @@ const ReservationsDemo: React.FC = () => {
           System Features
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box sx={{ textAlign: 'center' }}>
               <CalendarToday sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
               <Typography variant="h6">Calendar Views</Typography>
@@ -284,7 +284,7 @@ const ReservationsDemo: React.FC = () => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box sx={{ textAlign: 'center' }}>
               <Room sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
               <Typography variant="h6">Room Management</Typography>
@@ -293,7 +293,7 @@ const ReservationsDemo: React.FC = () => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box sx={{ textAlign: 'center' }}>
               <Person sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
               <Typography variant="h6">Therapist Tracking</Typography>
@@ -302,7 +302,7 @@ const ReservationsDemo: React.FC = () => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box sx={{ textAlign: 'center' }}>
               <Spa sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
               <Typography variant="h6">Quick Booking</Typography>
