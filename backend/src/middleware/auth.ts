@@ -21,11 +21,17 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const authHeader = req.header('Authorization');
+    console.log('🔐 Auth header received:', authHeader);
+    
+    const token = authHeader?.replace('Bearer ', '');
 
     if (!token) {
+      console.log('❌ No token provided. Headers:', req.headers);
       throw createError('Access denied. No token provided.', 401);
     }
+
+    console.log('🔑 Token extracted:', token.substring(0, 20) + '...');
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
     

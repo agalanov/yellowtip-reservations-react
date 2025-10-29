@@ -8,6 +8,8 @@ import Layout from './components/Layout';
 import LoginForm from './components/LoginForm';
 import Dashboard from './pages/Dashboard';
 import Bookings from './pages/Bookings';
+import ReservationsOverview from './pages/ReservationsOverview';
+import ReservationsDemo from './components/reservations/ReservationsDemo';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -98,6 +100,26 @@ function App() {
                   <ProtectedRoute>
                     <Layout>
                       <Bookings />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reservations"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ReservationsOverview />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reservations-demo"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ReservationsDemo />
                     </Layout>
                   </ProtectedRoute>
                 }

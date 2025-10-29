@@ -18,7 +18,10 @@ import {
   Therapist,
   TherapistRequest,
   TherapistFilters,
-  DashboardStats
+  DashboardStats,
+  ReservationData,
+  ReservationFilters,
+  QuickBooking
 } from '../types';
 
 class ApiService {
@@ -262,6 +265,37 @@ class ApiService {
 
   async deleteUser(id: number): Promise<void> {
     await this.api.delete(`/admin/users/${id}`);
+  }
+
+  // Reservation endpoints
+  async getReservations(filters: ReservationFilters): Promise<ReservationData> {
+    const response = await this.api.get<ApiResponse<ReservationData>>('/reservations', { params: filters });
+    return response.data.data!;
+  }
+
+  async getQuickBookingOptions(): Promise<QuickBooking[]> {
+    const response = await this.api.get<ApiResponse<QuickBooking[]>>('/reservations/quick-booking');
+    return response.data.data!;
+  }
+
+  async getReservationOverview(filters: ReservationFilters): Promise<ReservationData> {
+    const response = await this.api.get<ApiResponse<ReservationData>>('/reservations/overview', { params: filters });
+    return response.data.data!;
+  }
+
+  async getRoomOverview(filters: ReservationFilters): Promise<{ rooms: Room[]; bookings: Booking[] }> {
+    const response = await this.api.get<ApiResponse<{ rooms: Room[]; bookings: Booking[] }>>('/reservations/rooms', { params: filters });
+    return response.data.data!;
+  }
+
+  async getTherapistOverview(filters: ReservationFilters): Promise<{ therapists: Therapist[]; bookings: Booking[] }> {
+    const response = await this.api.get<ApiResponse<{ therapists: Therapist[]; bookings: Booking[] }>>('/reservations/therapists', { params: filters });
+    return response.data.data!;
+  }
+
+  async getCalendarView(filters: ReservationFilters): Promise<{ bookings: Booking[] }> {
+    const response = await this.api.get<ApiResponse<{ bookings: Booking[] }>>('/reservations/calendar', { params: filters });
+    return response.data.data!;
   }
 }
 

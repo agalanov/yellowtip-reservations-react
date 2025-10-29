@@ -37,6 +37,7 @@ export interface LoginResponse {
 export interface Booking {
   id: number;
   date: number;
+  time: number;
   service: {
     id: number;
     name: string;
@@ -128,6 +129,8 @@ export interface Service {
   category: {
     id: number;
     name: string;
+    hexcode?: string;
+    textcolor?: string;
   };
   currency: {
     id: number;
@@ -287,6 +290,32 @@ export interface DashboardStats {
   }>;
 }
 
+// Reservation Types
+export interface ReservationData {
+  bookings: Booking[];
+  rooms: Room[];
+  therapists: Therapist[];
+  services: Service[];
+  quickBookings: QuickBooking[];
+}
+
+export interface QuickBooking {
+  id: number;
+  name: string;
+  service: {
+    id: number;
+    name: string;
+    duration: number;
+    price: number;
+  };
+  category: {
+    id: number;
+    name: string;
+    hexcode: string;
+    textcolor: string;
+  };
+}
+
 // Filter Types
 export interface BookingFilters {
   page?: number;
@@ -302,6 +331,14 @@ export interface BookingFilters {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+}
+
+export interface ReservationFilters {
+  date?: string;
+  viewMode?: 'day' | 'week' | 'month';
+  roomId?: number;
+  therapistId?: number;
+  serviceId?: number;
 }
 
 export interface RoomFilters {
