@@ -38,7 +38,7 @@ services:
       NODE_ENV: development
       DATABASE_URL: postgresql://yellowtip_user:yellowtip_password@postgres:5432/yellowtip_reservations
       REDIS_URL: redis://redis:6379
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_SECRET: my-super-secret-jwt-key
       PORT: 3001
     ports:
       - "3001:3001"

@@ -234,3 +234,37 @@ export interface TherapistFilters extends PaginationQuery {
   attributeId?: number;
   attributeValue?: string;
 }
+
+// Reservation Types
+export interface ReservationFilters {
+  date?: string;
+  viewMode?: 'day' | 'week' | 'month';
+  roomId?: number;
+  therapistId?: number;
+  serviceId?: number;
+}
+
+export interface ReservationData {
+  bookings: BookingResponse[];
+  rooms: RoomResponse[];
+  therapists: TherapistResponse[];
+  services: ServiceResponse[];
+  quickBookings: QuickBookingResponse[];
+}
+
+export interface QuickBookingResponse {
+  id: number;
+  name: string;
+  service: {
+    id: number;
+    name: string;
+    duration: number;
+    price: number;
+  };
+  category: {
+    id: number;
+    name: string;
+    hexcode: string;
+    textcolor: string;
+  };
+}

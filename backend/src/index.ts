@@ -14,6 +14,7 @@ import serviceRoutes from './routes/services';
 import guestRoutes from './routes/guests';
 import therapistRoutes from './routes/therapists';
 import adminRoutes from './routes/admin';
+import reservationRoutes from './routes/reservations';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -69,6 +70,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/guests', guestRoutes);
 app.use('/api/therapists', therapistRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/reservations', reservationRoutes);
 
 // Error handling middleware
 app.use(notFound);

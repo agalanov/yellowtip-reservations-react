@@ -189,27 +189,87 @@ async function main() {
       minimalTime: 5,
       maximalTime: 0,
       timeUnit: 5,
+      quickBooking: false,
     },
   });
 
-  console.log('✅ Default service created');
+  // Create quick booking services
+  const quickBookingServices = [
+    {
+      id: 2,
+      name: 'Quick Massage',
+      description: '30-minute express massage',
+      price: 40.00,
+      duration: 30,
+      quickBooking: true,
+    },
+    {
+      id: 3,
+      name: 'Express Facial',
+      description: 'Quick facial treatment',
+      price: 35.00,
+      duration: 25,
+      quickBooking: true,
+    },
+    {
+      id: 4,
+      name: 'Spa Package',
+      description: 'Full spa experience',
+      price: 120.00,
+      duration: 120,
+      quickBooking: true,
+    },
+  ];
 
-  // Link room and service
-  await prisma.roomService.upsert({
-    where: {
-      roomId_serviceId: {
-        roomId: defaultRoom.id,
-        serviceId: defaultService.id,
+  for (const serviceData of quickBookingServices) {
+    await prisma.service.upsert({
+      where: { id: serviceData.id },
+      update: {},
+      create: {
+        id: serviceData.id,
+        categoryId: defaultCategory.id,
+        currencyId: defaultCurrency.id,
+        name: serviceData.name,
+        description: serviceData.description,
+        price: serviceData.price,
+        duration: serviceData.duration,
+        preDuration: 0,
+        postDuration: 0,
+        space: 1,
+        therapistType: '1',
+        active: true,
+        roomType: '1',
+        variableTime: false,
+        variablePrice: false,
+        minimalTime: 5,
+        maximalTime: 0,
+        timeUnit: 5,
+        quickBooking: serviceData.quickBooking,
       },
-    },
-    update: {},
-    create: {
-      roomId: defaultRoom.id,
-      serviceId: defaultService.id,
-    },
-  });
+    });
+  }
 
-  console.log('✅ Room and service linked');
+  console.log('✅ Default service and quick booking services created');
+
+  // Link room and services
+  const allServices = [defaultService, ...quickBookingServices.map(s => ({ id: s.id }))];
+  for (const service of allServices) {
+    await prisma.roomService.upsert({
+      where: {
+        roomId_serviceId: {
+          roomId: defaultRoom.id,
+          serviceId: service.id,
+        },
+      },
+      update: {},
+      create: {
+        roomId: defaultRoom.id,
+        serviceId: service.id,
+      },
+    });
+  }
+
+  console.log('✅ Room and services linked');
 
   // Create default guest
   const defaultGuest = await prisma.guest.upsert({
@@ -240,22 +300,24 @@ async function main() {
 
   console.log('✅ Default therapist created');
 
-  // Link therapist and service
-  await prisma.therapistService.upsert({
-    where: {
-      therapistId_serviceId: {
-        therapistId: defaultTherapist.id,
-        serviceId: defaultService.id,
+  // Link therapist and services
+  for (const service of allServices) {
+    await prisma.therapistService.upsert({
+      where: {
+        therapistId_serviceId: {
+          therapistId: defaultTherapist.id,
+          serviceId: service.id,
+        },
       },
-    },
-    update: {},
-    create: {
-      therapistId: defaultTherapist.id,
-      serviceId: defaultService.id,
-    },
-  });
+      update: {},
+      create: {
+        therapistId: defaultTherapist.id,
+        serviceId: service.id,
+      },
+    });
+  }
 
-  console.log('✅ Therapist and service linked');
+  console.log('✅ Therapist and services linked');
 
   // Create default language
   await prisma.language.upsert({
