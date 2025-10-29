@@ -8,6 +8,13 @@ import { ReservationFilters, ReservationData, QuickBookingResponse } from '../ty
 const router = express.Router();
 const prisma = new PrismaClient();
 
+// Root route - redirect to overview
+router.get('/', (req: express.Request, res: express.Response) => {
+  // Redirect to overview with the same query parameters
+  const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+  res.redirect(`/api/reservations/overview${queryString}`);
+});
+
 // Get reservations overview
 router.get('/overview', [
   query('date').optional().isISO8601().withMessage('Date must be a valid ISO date'),
