@@ -25,6 +25,7 @@ import {
   CardContent,
   CircularProgress,
   Alert,
+  TextFieldProps,
 } from '@mui/material';
 import {
   Add,
@@ -298,7 +299,7 @@ const Bookings: React.FC = () => {
         <DialogContent>
           {selectedBooking && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Date
                 </Typography>
@@ -306,7 +307,7 @@ const Bookings: React.FC = () => {
                   {formatDate(selectedBooking.date)}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Time
                 </Typography>
@@ -314,7 +315,7 @@ const Bookings: React.FC = () => {
                   {formatTime(selectedBooking.time)}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Service
                 </Typography>
@@ -322,7 +323,7 @@ const Bookings: React.FC = () => {
                   {selectedBooking.service.name}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Room
                 </Typography>
@@ -330,7 +331,7 @@ const Bookings: React.FC = () => {
                   {selectedBooking.room.name}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Guest
                 </Typography>
@@ -338,7 +339,7 @@ const Bookings: React.FC = () => {
                   {selectedBooking.guest.firstName} {selectedBooking.guest.lastName}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Therapist
                 </Typography>
@@ -351,7 +352,7 @@ const Bookings: React.FC = () => {
                 </Typography>
               </Grid>
               {selectedBooking.comment && (
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Comment
                   </Typography>
@@ -381,7 +382,7 @@ const Bookings: React.FC = () => {
         <DialogContent>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <DatePicker
                   label="Date"
                   value={dayjs(formData.date * 1000)}
@@ -393,10 +394,10 @@ const Bookings: React.FC = () => {
                       }));
                     }
                   }}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  renderInput={(params: TextFieldProps) => <TextField {...params} fullWidth />}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TimePicker
                   label="Time"
                   value={dayjs(formData.time * 1000)}
@@ -408,10 +409,10 @@ const Bookings: React.FC = () => {
                       }));
                     }
                   }}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  renderInput={(params: TextFieldProps) => <TextField {...params} fullWidth />}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Service</InputLabel>
                   <Select
@@ -426,7 +427,7 @@ const Bookings: React.FC = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Room</InputLabel>
                   <Select
@@ -441,7 +442,7 @@ const Bookings: React.FC = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Guest</InputLabel>
                   <Select
@@ -456,7 +457,7 @@ const Bookings: React.FC = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Therapist (Optional)</InputLabel>
                   <Select
@@ -471,7 +472,7 @@ const Bookings: React.FC = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Comment"

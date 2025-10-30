@@ -43,7 +43,7 @@ interface TherapistOverviewProps {
 }
 
 interface TherapistBooking {
-  therapist: Therapist;
+  therapist: Pick<Therapist, 'id' | 'firstName' | 'lastName'>;
   bookings: Booking[];
 }
 
@@ -126,13 +126,13 @@ const TherapistOverview: React.FC<TherapistOverviewProps> = ({
             const workload = calculateWorkload(therapistBookingsList);
             
             return (
-              <Grid item xs={12} sm={6} md={4} key={therapist.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={therapist.id}>
                 <Card 
                   sx={{ 
                     cursor: 'pointer',
                     '&:hover': { boxShadow: 3 }
                   }}
-                  onClick={() => handleTherapistClick(therapist)}
+                  onClick={() => handleTherapistClick(therapist as Therapist)}
                 >
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -144,7 +144,7 @@ const TherapistOverview: React.FC<TherapistOverviewProps> = ({
                           {therapist.firstName} {therapist.lastName}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Priority: {therapist.priority}
+                          Priority: {(therapist as Therapist).priority}
                         </Typography>
                       </Box>
                     </Box>

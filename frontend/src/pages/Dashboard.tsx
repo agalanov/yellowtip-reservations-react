@@ -108,7 +108,7 @@ const Dashboard: React.FC = () => {
       </Typography>
       
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
           <StatCard
             title="Today's Bookings"
             value={stats?.todayBookings || 0}
@@ -116,7 +116,7 @@ const Dashboard: React.FC = () => {
             color="#1976d2"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
           <StatCard
             title="Active Bookings"
             value={stats?.totalActiveBookings || 0}
@@ -124,7 +124,7 @@ const Dashboard: React.FC = () => {
             color="#388e3c"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
           <StatCard
             title="Total Guests"
             value={stats?.totalGuests || 0}
@@ -132,7 +132,7 @@ const Dashboard: React.FC = () => {
             color="#f57c00"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
           <StatCard
             title="Therapists"
             value={stats?.totalTherapists || 0}
@@ -140,7 +140,7 @@ const Dashboard: React.FC = () => {
             color="#7b1fa2"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
           <StatCard
             title="Rooms"
             value={stats?.totalRooms || 0}
@@ -148,7 +148,7 @@ const Dashboard: React.FC = () => {
             color="#d32f2f"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
           <StatCard
             title="Services"
             value={stats?.totalServices || 0}
@@ -159,7 +159,7 @@ const Dashboard: React.FC = () => {
       </Grid>
 
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>

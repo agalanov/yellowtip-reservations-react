@@ -41,7 +41,7 @@ interface RoomOverviewProps {
 }
 
 interface RoomBooking {
-  room: Room;
+  room: Pick<Room, 'id' | 'name'>;
   bookings: Booking[];
 }
 
@@ -52,9 +52,9 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
   onEditBooking,
   onViewBooking,
 }) => {
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Pick<Room, 'id' | 'name'> | null>(null);
   const [roomDialogOpen, setRoomDialogOpen] = useState(false);
-  const [setTimeSlots] = useState<{ start: string; end: string }[]>([]);
+  const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>([]);
 
   // Group bookings by room
   const roomBookings = useMemo(() => {
@@ -123,7 +123,7 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
     return '#ff9800';
   };
 
-  const handleRoomClick = (room: Room) => {
+  const handleRoomClick = (room: Pick<Room, 'id' | 'name'>) => {
     setSelectedRoom(room);
     setTimeSlots(generateTimeSlots());
     setRoomDialogOpen(true);
@@ -138,7 +138,7 @@ const RoomOverview: React.FC<RoomOverviewProps> = ({
         
         <Grid container spacing={2}>
           {roomBookings.map(({ room, bookings: roomBookingsList }) => (
-            <Grid item xs={12} sm={6} md={4} key={room.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={room.id}>
               <Card 
                 sx={{ 
                   cursor: 'pointer',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -8,12 +8,8 @@ import {
   Button,
   IconButton,
   Tooltip,
-  Chip,
   CircularProgress,
   Alert,
-  Grid,
-  Card,
-  CardContent,
   Fab,
 } from '@mui/material';
 import {
@@ -23,10 +19,9 @@ import {
   Add,
   Refresh,
   Print,
-  FilterList,
   ViewWeek,
   ViewDay,
-  ViewMonth,
+  CalendarMonth,
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -236,7 +231,7 @@ const ReservationsOverview: React.FC = () => {
                 onClick={() => setViewMode('month')}
                 color={viewMode === 'month' ? 'primary' : 'default'}
               >
-                <ViewMonth />
+                <CalendarMonth />
               </IconButton>
             </Tooltip>
           </Paper>
