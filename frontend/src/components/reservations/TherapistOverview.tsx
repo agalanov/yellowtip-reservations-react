@@ -404,7 +404,7 @@ const TherapistOverview: React.FC<TherapistOverviewProps> = ({
                   <TableCell>
                     <Button
                       size="small"
-                      onClick={() => handleTherapistClick(therapist)}
+                      onClick={() => handleTherapistClick(therapist as unknown as Therapist)}
                     >
                       View Details
                     </Button>
