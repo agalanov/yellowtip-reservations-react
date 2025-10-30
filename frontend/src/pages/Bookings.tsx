@@ -394,7 +394,7 @@ const Bookings: React.FC = () => {
                       }));
                     }
                   }}
-                  renderInput={(params: TextFieldProps) => <TextField {...params} fullWidth />}
+                  slotProps={{ textField: { fullWidth: true } }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -409,7 +409,7 @@ const Bookings: React.FC = () => {
                       }));
                     }
                   }}
-                  renderInput={(params: TextFieldProps) => <TextField {...params} fullWidth />}
+                  slotProps={{ textField: { fullWidth: true } }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
