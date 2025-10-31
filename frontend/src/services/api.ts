@@ -242,13 +242,32 @@ class ApiService {
     return response.data.data!;
   }
 
-  async getConfig(): Promise<Record<string, string>> {
-    const response = await this.api.get<ApiResponse<Record<string, string>>>('/admin/config');
+  async getConfig(grouped?: boolean): Promise<Record<string, string> | Record<string, Array<{ name: string; value: string | null; app: string | null }>>> {
+    const response = await this.api.get<ApiResponse<any>>('/admin/config', { params: grouped ? { grouped: 'true' } : {} });
+    return response.data.data!;
+  }
+
+  async getConfigItem(name: string): Promise<{ name: string; value: string | null; app: string | null }> {
+    const response = await this.api.get<ApiResponse<{ name: string; value: string | null; app: string | null }>>(`/admin/config/${name}`);
     return response.data.data!;
   }
 
   async updateConfig(config: Record<string, string>): Promise<void> {
     await this.api.put('/admin/config', { config });
+  }
+
+  async createConfigItem(name: string, value: string, app?: string): Promise<{ name: string; value: string | null; app: string | null }> {
+    const response = await this.api.post<ApiResponse<{ name: string; value: string | null; app: string | null }>>('/admin/config', { name, value, app });
+    return response.data.data!;
+  }
+
+  async updateConfigItem(name: string, value?: string, app?: string): Promise<{ name: string; value: string | null; app: string | null }> {
+    const response = await this.api.put<ApiResponse<{ name: string; value: string | null; app: string | null }>>(`/admin/config/${name}`, { value, app });
+    return response.data.data!;
+  }
+
+  async deleteConfigItem(name: string): Promise<void> {
+    await this.api.delete(`/admin/config/${name}`);
   }
 
   async getUsers(filters?: any): Promise<{ data: any[]; pagination?: any }> {

@@ -167,6 +167,16 @@ const AdminDashboard: React.FC = () => {
                   System Config
                 </Button>
               </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Security />}
+                  onClick={() => navigate('/admin/roles')}
+                >
+                  Roles & Permissions
+                </Button>
+              </Grid>
             </Grid>
           </CardContent>
         </Card>

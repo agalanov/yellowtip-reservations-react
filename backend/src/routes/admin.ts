@@ -104,23 +104,73 @@ router.get('/dashboard', authenticate, async (req: AuthRequest, res, next) => {
 // Get system configuration
 router.get('/config', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    const config = await prisma.configuration.findMany();
+    const { grouped } = req.query;
+    const config = await prisma.configuration.findMany({
+      orderBy: [
+        { app: 'asc' },
+        { name: 'asc' },
+      ],
+    });
 
-    const configObject = config.reduce((acc: Record<string, string>, item: { name: string; app: string | null; value: string | null }) => {
-      acc[item.name] = item.value || '';
-      return acc;
-    }, {} as Record<string, string>);
+    if (grouped === 'true') {
+      // Group by app
+      const groupedConfig: Record<string, Array<{ name: string; value: string | null; app: string | null }>> = {};
+      
+      config.forEach((item) => {
+        const appKey = item.app || 'general';
+        if (!groupedConfig[appKey]) {
+          groupedConfig[appKey] = [];
+        }
+        groupedConfig[appKey].push({
+          name: item.name,
+          value: item.value,
+          app: item.app,
+        });
+      });
+
+      res.json({
+        success: true,
+        data: groupedConfig,
+      });
+    } else {
+      // Return flat object (for backward compatibility)
+      const configObject = config.reduce((acc: Record<string, string>, item: { name: string; app: string | null; value: string | null }) => {
+        acc[item.name] = item.value || '';
+        return acc;
+      }, {} as Record<string, string>);
+
+      res.json({
+        success: true,
+        data: configObject,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get single configuration item
+router.get('/config/:name', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const { name } = req.params;
+    const config = await prisma.configuration.findUnique({
+      where: { name },
+    });
+
+    if (!config) {
+      throw createError('Configuration not found', 404);
+    }
 
     res.json({
       success: true,
-      data: configObject,
+      data: config,
     });
   } catch (error) {
     next(error);
   }
 });
 
-// Update system configuration
+// Update system configuration (bulk)
 router.put('/config', [
   body('config').isObject().withMessage('Config must be an object'),
 ], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
@@ -153,6 +203,108 @@ router.put('/config', [
     });
   } catch (error) {
     return next(error);
+  }
+});
+
+// Create configuration item
+router.post('/config', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('value').optional().isString().withMessage('Value must be a string'),
+  body('app').optional().isString().withMessage('App must be a string'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { name, value = '', app = null } = req.body;
+
+    // Check if config already exists
+    const existing = await prisma.configuration.findUnique({
+      where: { name },
+    });
+
+    if (existing) {
+      throw createError('Configuration with this name already exists', 400);
+    }
+
+    const config = await prisma.configuration.create({
+      data: {
+        name,
+        value,
+        app,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: config,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Update single configuration item
+router.put('/config/:name', [
+  body('value').optional().isString().withMessage('Value must be a string'),
+  body('app').optional().isString().withMessage('App must be a string'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { name } = req.params;
+    const { value, app } = req.body;
+
+    const updateData: any = {};
+    if (value !== undefined) updateData.value = String(value);
+    if (app !== undefined) updateData.app = app || null;
+
+    const config = await prisma.configuration.update({
+      where: { name },
+      data: updateData,
+    });
+
+    res.json({
+      success: true,
+      data: config,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Delete configuration item
+router.delete('/config/:name', authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+  try {
+    const { name } = req.params;
+
+    await prisma.configuration.delete({
+      where: { name },
+    });
+
+    res.json({
+      success: true,
+      message: 'Configuration deleted successfully',
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
