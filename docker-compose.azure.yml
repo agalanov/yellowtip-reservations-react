@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.production
+    image: ${ACR_REGISTRY:-yellowtip}.azurecr.io/yellowtip-backend:latest
+    container_name: yellowtip-backend
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://yellowtip_user:yellowtip_password@postgres:5432/yellowtip_reservations}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      PORT: 3001
+      # Azure-specific variables
+      WEBSITES_PORT: 3001
+      WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - yellowtip-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.production
+    image: ${ACR_REGISTRY:-yellowtip}.azurecr.io/yellowtip-frontend:latest
+    container_name: yellowtip-frontend
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:3001/api}
+      REACT_APP_WS_URL: ${REACT_APP_WS_URL:-ws://localhost:3001}
+      # Azure-specific variables
+      WEBSITES_PORT: 3000
+      WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - yellowtip-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL Database (use Azure Database for PostgreSQL in production)
+  postgres:
+    image: postgres:15-alpine
+    container_name: yellowtip-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-yellowtip_reservations}
+      POSTGRES_USER: ${POSTGRES_USER:-yellowtip_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yellowtip_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db:/docker-entrypoint-initdb.d
+    networks:
+      - yellowtip-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-yellowtip_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (use Azure Cache for Redis in production)
+  redis:
+    image: redis:7-alpine
+    container_name: yellowtip-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - yellowtip-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  yellowtip-network:
+    driver: bridge
+

@@ -1,0 +1,27 @@
+# Azure Container Instances deployment configuration
+# Use this file with Azure CLI or Azure DevOps
+
+version: '3.8'
+
+services:
+  backend:
+    image: ${ACR_REGISTRY}.azurecr.io/yellowtip-backend:latest
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3001
+    ports:
+      - "3001:3001"
+
+  frontend:
+    image: ${ACR_REGISTRY}.azurecr.io/yellowtip-frontend:latest
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL}
+      REACT_APP_WS_URL: ${REACT_APP_WS_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
