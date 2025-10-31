@@ -443,6 +443,145 @@ export interface TherapistFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+// Regional Settings Types
+export interface Country {
+  id: number;
+  name: string;
+  code: string;
+  topPulldown?: string;
+  isDefault?: string;
+  cities?: City[];
+}
+
+export interface City {
+  id: number;
+  name: string;
+  country: number;
+  isDefault?: string;
+  countryRef?: {
+    id: number;
+    name: string;
+    code: string;
+  };
+}
+
+export interface CountryRequest {
+  name: string;
+  code: string;
+  topPulldown?: string;
+  isDefault?: string;
+}
+
+export interface CityRequest {
+  name: string;
+  country: number;
+  isDefault?: string;
+}
+
+export interface CountryFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CityFilters {
+  page?: number;
+  limit?: number;
+  country?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Language Types
+export interface Language {
+  id: string;
+  name: string;
+  available: boolean;
+  availableGuests: boolean;
+  availableReservations: boolean;
+  isDefault: boolean;
+}
+
+export interface LanguageRequest {
+  id: string;
+  name: string;
+  available?: boolean;
+  availableGuests?: boolean;
+  availableReservations?: boolean;
+  isDefault?: boolean;
+}
+
+export interface LanguageFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  available?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Tax Types
+export interface Tax {
+  id: number;
+  code: string;
+  description?: string;
+  tax1?: number;
+  tax1Text?: string;
+  tax2?: number;
+  tax2Text?: string;
+  tax2On1?: boolean;
+  real?: boolean;
+}
+
+export interface TaxRequest {
+  code: string;
+  description?: string;
+  tax1?: number;
+  tax1Text?: string;
+  tax2?: number;
+  tax2Text?: string;
+  tax2On1?: boolean;
+  real?: boolean;
+}
+
+export interface TaxFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Opening Hours Types
+export interface WorkTimeDay {
+  weekday: number;
+  startTime: number;
+  endTime: number;
+}
+
+export interface WorkTimeDate {
+  workDate: number;
+  startTime: number;
+  endTime: number;
+}
+
+export interface WorkTimeHoliday {
+  startDate: number;
+  endDate: number;
+}
+
+export interface OpeningHoursRequest {
+  days: Array<{
+    weekday: number;
+    startTime: number;
+    endTime: number;
+    enabled: boolean;
+  }>;
+}
+
 // Form Types
 export interface FormField {
   name: string;

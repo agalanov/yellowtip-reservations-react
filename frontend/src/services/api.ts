@@ -27,7 +27,22 @@ import {
   RoleFilters,
   AccessRight,
   AccessRightRequest,
-  AccessRightFilters
+  AccessRightFilters,
+  Country,
+  CountryRequest,
+  CountryFilters,
+  City,
+  CityRequest,
+  CityFilters,
+  Language,
+  LanguageRequest,
+  LanguageFilters,
+  Tax,
+  TaxRequest,
+  TaxFilters,
+  WorkTimeDay,
+  WorkTimeDate,
+  OpeningHoursRequest
 } from '../types';
 
 class ApiService {
@@ -439,6 +454,136 @@ class ApiService {
 
   async deleteAccessRight(id: number): Promise<void> {
     await this.api.delete(`/admin/rights/${id}`);
+  }
+
+  // Countries endpoints
+  async getCountries(filters?: CountryFilters): Promise<{ data: Country[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<Country[]>>('/admin/countries', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getCountry(id: number): Promise<Country> {
+    const response = await this.api.get<ApiResponse<Country>>(`/admin/countries/${id}`);
+    return response.data.data!;
+  }
+
+  async createCountry(country: CountryRequest): Promise<Country> {
+    const response = await this.api.post<ApiResponse<Country>>('/admin/countries', country);
+    return response.data.data!;
+  }
+
+  async updateCountry(id: number, country: Partial<CountryRequest>): Promise<Country> {
+    const response = await this.api.put<ApiResponse<Country>>(`/admin/countries/${id}`, country);
+    return response.data.data!;
+  }
+
+  async deleteCountry(id: number): Promise<void> {
+    await this.api.delete(`/admin/countries/${id}`);
+  }
+
+  // Cities endpoints
+  async getCities(filters?: CityFilters): Promise<{ data: City[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<City[]>>('/admin/cities', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getCity(id: number): Promise<City> {
+    const response = await this.api.get<ApiResponse<City>>(`/admin/cities/${id}`);
+    return response.data.data!;
+  }
+
+  async createCity(city: CityRequest): Promise<City> {
+    const response = await this.api.post<ApiResponse<City>>('/admin/cities', city);
+    return response.data.data!;
+  }
+
+  async updateCity(id: number, city: Partial<CityRequest>): Promise<City> {
+    const response = await this.api.put<ApiResponse<City>>(`/admin/cities/${id}`, city);
+    return response.data.data!;
+  }
+
+  async deleteCity(id: number): Promise<void> {
+    await this.api.delete(`/admin/cities/${id}`);
+  }
+
+  // Languages endpoints
+  async getLanguages(filters?: LanguageFilters): Promise<{ data: Language[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<Language[]>>('/admin/languages', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getLanguage(id: string): Promise<Language> {
+    const response = await this.api.get<ApiResponse<Language>>(`/admin/languages/${id}`);
+    return response.data.data!;
+  }
+
+  async createLanguage(language: LanguageRequest): Promise<Language> {
+    const response = await this.api.post<ApiResponse<Language>>('/admin/languages', language);
+    return response.data.data!;
+  }
+
+  async updateLanguage(id: string, language: Partial<LanguageRequest>): Promise<Language> {
+    const response = await this.api.put<ApiResponse<Language>>(`/admin/languages/${id}`, language);
+    return response.data.data!;
+  }
+
+  async deleteLanguage(id: string): Promise<void> {
+    await this.api.delete(`/admin/languages/${id}`);
+  }
+
+  // Taxes endpoints
+  async getTaxes(filters?: TaxFilters): Promise<{ data: Tax[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<Tax[]>>('/admin/taxes', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getTax(id: number): Promise<Tax> {
+    const response = await this.api.get<ApiResponse<Tax>>(`/admin/taxes/${id}`);
+    return response.data.data!;
+  }
+
+  async createTax(tax: TaxRequest): Promise<Tax> {
+    const response = await this.api.post<ApiResponse<Tax>>('/admin/taxes', tax);
+    return response.data.data!;
+  }
+
+  async updateTax(id: number, tax: Partial<TaxRequest>): Promise<Tax> {
+    const response = await this.api.put<ApiResponse<Tax>>(`/admin/taxes/${id}`, tax);
+    return response.data.data!;
+  }
+
+  async deleteTax(id: number): Promise<void> {
+    await this.api.delete(`/admin/taxes/${id}`);
+  }
+
+  // Opening Hours endpoints
+  async getOpeningHours(): Promise<WorkTimeDay[]> {
+    const response = await this.api.get<ApiResponse<WorkTimeDay[]>>('/admin/opening-hours');
+    return response.data.data!;
+  }
+
+  async updateOpeningHours(days: OpeningHoursRequest['days']): Promise<WorkTimeDay[]> {
+    const response = await this.api.put<ApiResponse<WorkTimeDay[]>>('/admin/opening-hours', { days });
+    return response.data.data!;
+  }
+
+  async getOpeningHoursDates(startDate?: number, endDate?: number): Promise<WorkTimeDate[]> {
+    const response = await this.api.get<ApiResponse<WorkTimeDate[]>>('/admin/opening-hours/dates', {
+      params: { startDate, endDate },
+    });
+    return response.data.data!;
   }
 }
 

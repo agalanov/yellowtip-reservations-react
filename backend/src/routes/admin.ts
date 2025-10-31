@@ -1417,4 +1417,889 @@ router.delete('/rights/:id', authenticate, authorize('admin'), async (req: AuthR
   }
 });
 
+// ============ Countries Endpoints ============
+// Get all countries
+router.get('/countries', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { code: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const total = await prisma.country.count({ where });
+
+    const countries = await prisma.country.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+      include: {
+        _count: {
+          select: {
+            cities: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      data: countries,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Get country by ID
+router.get('/countries/:id', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+    const country = await prisma.country.findUnique({
+      where: { id: Number(id) },
+      include: {
+        cities: true,
+      },
+    });
+
+    if (!country) {
+      throw createError('Country not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: country,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Create country
+router.post('/countries', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('code').notEmpty().withMessage('Code is required'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { name, code, topPulldown = 'N', isDefault = 'N' } = req.body;
+
+    // If setting as default, unset others
+    if (isDefault === 'Y') {
+      await prisma.country.updateMany({
+        where: { isDefault: 'Y' },
+        data: { isDefault: 'N' },
+      });
+    }
+
+    const country = await prisma.country.create({
+      data: {
+        name,
+        code,
+        topPulldown: topPulldown || 'N',
+        isDefault: isDefault || 'N',
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: country,
+    });
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Country with this code already exists' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// Update country
+router.put('/countries/:id', [
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+  body('code').optional().notEmpty().withMessage('Code cannot be empty'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id } = req.params;
+    const { isDefault, ...updateData } = req.body;
+
+    // If setting as default, unset others
+    if (isDefault === 'Y') {
+      await prisma.country.updateMany({
+        where: { isDefault: 'Y' },
+        data: { isDefault: 'N' },
+      });
+      updateData.isDefault = 'Y';
+    }
+
+    const country = await prisma.country.update({
+      where: { id: Number(id) },
+      data: updateData,
+    });
+
+    res.json({
+      success: true,
+      data: country,
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Country not found' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// Delete country
+router.delete('/countries/:id', authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    // Check if country has cities
+    const cityCount = await prisma.city.count({
+      where: { country: Number(id) },
+    });
+
+    if (cityCount > 0) {
+      throw createError('Cannot delete country with cities', 400);
+    }
+
+    await prisma.country.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      success: true,
+      message: 'Country deleted successfully',
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// ============ Cities Endpoints ============
+// Get all cities
+router.get('/cities', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      country,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+    if (country) {
+      where.country = Number(country);
+    }
+
+    const total = await prisma.city.count({ where });
+
+    const cities = await prisma.city.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+      include: {
+        countryRef: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      data: cities,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Get city by ID
+router.get('/cities/:id', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+    const city = await prisma.city.findUnique({
+      where: { id: Number(id) },
+      include: {
+        countryRef: true,
+      },
+    });
+
+    if (!city) {
+      throw createError('City not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: city,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Create city
+router.post('/cities', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('country').isInt().withMessage('Country ID is required'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { name, country, isDefault = 'N' } = req.body;
+
+    // If setting as default, unset others
+    if (isDefault === 'Y') {
+      await prisma.city.updateMany({
+        where: { country: Number(country), isDefault: 'Y' },
+        data: { isDefault: 'N' },
+      });
+    }
+
+    const city = await prisma.city.create({
+      data: {
+        name,
+        country: Number(country),
+        isDefault: isDefault || 'N',
+      },
+      include: {
+        countryRef: true,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: city,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Update city
+router.put('/cities/:id', [
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+  body('country').optional().isInt().withMessage('Country ID must be an integer'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id } = req.params;
+    const { isDefault, country, ...updateData } = req.body;
+
+    const updatePayload: any = { ...updateData };
+    if (country !== undefined) {
+      updatePayload.country = Number(country);
+    }
+
+    // If setting as default, unset others for the same country
+    if (isDefault === 'Y') {
+      const city = await prisma.city.findUnique({ where: { id: Number(id) } });
+      const countryId = country !== undefined ? Number(country) : city?.country;
+      if (countryId) {
+        await prisma.city.updateMany({
+          where: { country: countryId, isDefault: 'Y' },
+          data: { isDefault: 'N' },
+        });
+        updatePayload.isDefault = 'Y';
+      }
+    }
+
+    const updatedCity = await prisma.city.update({
+      where: { id: Number(id) },
+      data: updatePayload,
+      include: {
+        countryRef: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      data: updatedCity,
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'City not found' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// Delete city
+router.delete('/cities/:id', authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.city.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      success: true,
+      message: 'City deleted successfully',
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'City not found' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// ============ Languages Endpoints ============
+// Get all languages
+router.get('/languages', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      available,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { id: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    if (available !== undefined) {
+      where.available = available === 'true';
+    }
+
+    const total = await prisma.language.count({ where });
+
+    const languages = await prisma.language.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+    });
+
+    res.json({
+      success: true,
+      data: languages,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Get language by ID
+router.get('/languages/:id', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+    const language = await prisma.language.findUnique({
+      where: { id },
+    });
+
+    if (!language) {
+      throw createError('Language not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: language,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Create language
+router.post('/languages', [
+  body('id').notEmpty().withMessage('Language ID is required'),
+  body('name').notEmpty().withMessage('Name is required'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id, name, available = false, availableGuests = false, availableReservations = false, isDefault = false } = req.body;
+
+    // If setting as default, unset others
+    if (isDefault) {
+      await prisma.language.updateMany({
+        where: { isDefault: true },
+        data: { isDefault: false },
+      });
+    }
+
+    const language = await prisma.language.create({
+      data: {
+        id,
+        name,
+        available: available || false,
+        availableGuests: availableGuests || false,
+        availableReservations: availableReservations || false,
+        isDefault: isDefault || false,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: language,
+    });
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Language with this ID already exists' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// Update language
+router.put('/languages/:id', [
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id } = req.params;
+    const { isDefault, ...updateData } = req.body;
+
+    // If setting as default, unset others
+    if (isDefault === true) {
+      await prisma.language.updateMany({
+        where: { isDefault: true },
+        data: { isDefault: false },
+      });
+      updateData.isDefault = true;
+    }
+
+    const language = await prisma.language.update({
+      where: { id },
+      data: updateData,
+    });
+
+    res.json({
+      success: true,
+      data: language,
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Language not found' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// Delete language
+router.delete('/languages/:id', authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.language.delete({
+      where: { id },
+    });
+
+    res.json({
+      success: true,
+      message: 'Language deleted successfully',
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Language not found' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// ============ Taxes Endpoints ============
+// Get all taxes
+router.get('/taxes', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      sortBy = 'code',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { code: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const total = await prisma.tax.count({ where });
+
+    const taxes = await prisma.tax.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+    });
+
+    res.json({
+      success: true,
+      data: taxes,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Get tax by ID
+router.get('/taxes/:id', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+    const tax = await prisma.tax.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!tax) {
+      throw createError('Tax not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: tax,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Create tax
+router.post('/taxes', [
+  body('code').notEmpty().withMessage('Code is required'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { code, description, tax1, tax1Text, tax2, tax2Text, tax2On1 = false, real = false } = req.body;
+
+    const tax = await prisma.tax.create({
+      data: {
+        code,
+        description: description || null,
+        tax1: tax1 ? Number(tax1) : null,
+        tax1Text: tax1Text || null,
+        tax2: tax2 ? Number(tax2) : null,
+        tax2Text: tax2Text || null,
+        tax2On1: tax2On1 || false,
+        real: real || false,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: tax,
+    });
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Tax with this code already exists' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// Update tax
+router.put('/taxes/:id', authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+    const updateData: any = {};
+
+    if (req.body.code !== undefined) updateData.code = req.body.code;
+    if (req.body.description !== undefined) updateData.description = req.body.description;
+    if (req.body.tax1 !== undefined) updateData.tax1 = req.body.tax1 ? Number(req.body.tax1) : null;
+    if (req.body.tax1Text !== undefined) updateData.tax1Text = req.body.tax1Text || null;
+    if (req.body.tax2 !== undefined) updateData.tax2 = req.body.tax2 ? Number(req.body.tax2) : null;
+    if (req.body.tax2Text !== undefined) updateData.tax2Text = req.body.tax2Text || null;
+    if (req.body.tax2On1 !== undefined) updateData.tax2On1 = req.body.tax2On1;
+    if (req.body.real !== undefined) updateData.real = req.body.real;
+
+    const tax = await prisma.tax.update({
+      where: { id: Number(id) },
+      data: updateData,
+    });
+
+    res.json({
+      success: true,
+      data: tax,
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Tax not found' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// Delete tax
+router.delete('/taxes/:id', authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.tax.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      success: true,
+      message: 'Tax deleted successfully',
+    });
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Tax not found' },
+      });
+    }
+    return next(error);
+  }
+});
+
+// ============ Opening Hours Endpoints ============
+// Get opening hours (week days)
+router.get('/opening-hours', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const days = await prisma.workTimeDay.findMany({
+      orderBy: { weekday: 'asc' },
+    });
+
+    // Fill missing days with defaults
+    const weekDays = Array.from({ length: 7 }, (_, i) => {
+      const day = days.find((d: any) => d.weekday === i);
+      return day || {
+        weekday: i,
+        startTime: 28800, // 8:00 AM
+        endTime: 64800, // 6:00 PM
+      };
+    });
+
+    res.json({
+      success: true,
+      data: weekDays,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Update opening hours (week days)
+router.put('/opening-hours', [
+  body('days').isArray().withMessage('Days must be an array'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { days } = req.body;
+
+    // Delete all existing days
+    await prisma.workTimeDay.deleteMany({});
+
+    // Create new days
+    const enabledDays = days.filter((d: any) => d.enabled);
+    if (enabledDays.length > 0) {
+      await prisma.workTimeDay.createMany({
+        data: enabledDays.map((d: any) => ({
+          weekday: Number(d.weekday),
+          startTime: Number(d.startTime),
+          endTime: Number(d.endTime),
+        })),
+      });
+    }
+
+    const updatedDays = await prisma.workTimeDay.findMany({
+      orderBy: { weekday: 'asc' },
+    });
+
+    res.json({
+      success: true,
+      data: updatedDays,
+      message: 'Opening hours updated successfully',
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Get specific date opening hours
+router.get('/opening-hours/dates', authenticate, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const where: any = {};
+    if (startDate && endDate) {
+      where.workDate = {
+        gte: Number(startDate),
+        lte: Number(endDate),
+      };
+    }
+
+    const dates = await prisma.workTimeDate.findMany({
+      where,
+      orderBy: { workDate: 'asc' },
+    });
+
+    res.json({
+      success: true,
+      data: dates,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 export default router;

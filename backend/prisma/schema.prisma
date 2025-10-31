@@ -543,6 +543,71 @@ model Configuration {
   @@map("ytr_config")
 }
 
+// Regional Settings
+model Country {
+  id          Int    @id @default(autoincrement()) @map("country_id")
+  name        String @map("country_name")
+  code        String @unique @map("country_code")
+  topPulldown String? @default("N") @map("toppulldown")
+  isDefault   String? @default("N") @map("country_default")
+
+  // Relations
+  cities      City[]
+
+  @@map("ytr_countries")
+}
+
+model City {
+  id          Int    @id @default(autoincrement())
+  name        String
+  country     Int    @map("country")
+  isDefault   String? @default("N") @map("city_default")
+
+  // Relations
+  countryRef  Country @relation(fields: [country], references: [id])
+
+  @@map("ytr_city")
+}
+
+model Tax {
+  id          Int     @id @default(autoincrement()) @map("taxes_id")
+  code        String  @map("taxes_code")
+  description String? @map("taxes_descr")
+  tax1        Float?  @map("taxes_tax1")
+  tax1Text    String? @map("taxes_tax1_txt")
+  tax2        Float?  @map("taxes_tax2")
+  tax2Text    String? @map("taxes_tax2_txt")
+  tax2On1     Boolean? @default(false) @map("taxes_2on1")
+  real        Boolean? @default(false) @map("taxes_real")
+
+  @@map("ytr_taxes")
+}
+
+// Opening Hours
+model WorkTimeDay {
+  weekday   Int @id @map("weekday")
+  startTime Int @map("starttime")
+  endTime   Int @map("endtime")
+
+  @@map("ytr_worktime_day")
+}
+
+model WorkTimeDate {
+  workDate  Int @id @map("workdate")
+  startTime Int @map("starttime")
+  endTime   Int @map("endtime")
+
+  @@map("ytr_worktime_date")
+}
+
+model WorkTimeHoliday {
+  startDate Int @map("startdate")
+  endDate   Int @map("enddate")
+
+  @@id([startDate, endDate])
+  @@map("ytr_worktime_holidays")
+}
+
 // Enums
 enum AccountStatus {
   ACTIVE @map("A")
