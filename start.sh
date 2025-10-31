@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# YellowTip Reservations - Start Script
-echo "🚀 Starting YellowTip Reservations System..."
+# Myolika Reservations - Start Script
+echo "🚀 Starting Myolika Reservations System..."
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -69,7 +69,7 @@ while [ $attempt -le $max_attempts ]; do
 done
 
 echo ""
-echo "🎉 YellowTip Reservations System is ready!"
+echo "🎉 Myolika Reservations System is ready!"
 echo ""
 echo "📱 Frontend: http://localhost:3000"
 echo "🔧 Backend API: http://localhost:3001/api"

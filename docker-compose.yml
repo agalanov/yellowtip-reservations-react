@@ -52,7 +52,7 @@ services:
       - yellowtip-network
     command: npm run dev
 
-  # Frontend React App
+  # Frontend Myolika
   frontend:
     build:
       context: ./frontend

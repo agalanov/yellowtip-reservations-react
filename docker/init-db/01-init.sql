@@ -1,4 +1,4 @@
--- Initialize YellowTip Reservations Database
+-- Initialize Myolika Reservations Database
 -- This file is executed when the PostgreSQL container starts
 
 -- Create database if it doesn't exist

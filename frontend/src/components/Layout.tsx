@@ -77,7 +77,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div>
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          YellowTip
+          Myolika
         </Typography>
       </Toolbar>
       <Divider />

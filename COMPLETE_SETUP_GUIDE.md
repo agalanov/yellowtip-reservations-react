@@ -1,8 +1,8 @@
-# Complete Setup Guide - YellowTip Reservations System
+# Complete Setup Guide - Myolika Reservations System
 
 ## Overview
 
-This guide provides complete setup instructions for the YellowTip Reservations system that has been converted from PHP to React MUI TypeScript with a Node.js/Express backend.
+This guide provides complete setup instructions for the Myolika Reservations system that has been converted from PHP to React MUI TypeScript with a Node.js/Express backend.
 
 ## System Architecture
 
@@ -321,5 +321,5 @@ yellowtip-reservations-react/
 └── COMPLETE_SETUP_GUIDE.md
 ```
 
-This completes the full setup and migration of the YellowTip Reservations system from PHP to React MUI TypeScript with a modern backend API.
+This completes the full setup and migration of the Myolika Reservations system from PHP to React MUI TypeScript with a modern backend API.
 

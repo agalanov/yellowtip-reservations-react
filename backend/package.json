@@ -1,7 +1,7 @@
 {
   "name": "yellowtip-backend",
   "version": "1.0.0",
-  "description": "YellowTip Reservations Backend API",
+  "description": "Myolika Reservations Backend API",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -18,7 +18,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "keywords": ["reservations", "spa", "booking", "api"],
-  "author": "YellowTip Team",
+  "author": "Myolika Team",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.18.0",

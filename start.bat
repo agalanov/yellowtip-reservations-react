@@ -1,6 +1,6 @@
 @echo off
-REM YellowTip Reservations - Start Script for Windows
-echo 🚀 Starting YellowTip Reservations System...
+REM Myolika Reservations - Start Script for Windows
+echo 🚀 Starting Myolika Reservations System...
 
 REM Check if Docker is running
 docker info >nul 2>&1
@@ -76,7 +76,7 @@ goto check_frontend
 
 :frontend_ready
 echo.
-echo 🎉 YellowTip Reservations System is ready!
+echo 🎉 Myolika Reservations System is ready!
 echo.
 echo 📱 Frontend: http://localhost:3000
 echo 🔧 Backend API: http://localhost:3001/api

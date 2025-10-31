@@ -1,4 +1,4 @@
-# YellowTip Reservations - React Version
+# Myolika Reservations - React Version
 
 A modern reservation management system for spas and wellness centers, built with React, TypeScript, Node.js, Prisma, and PostgreSQL.
 
@@ -243,7 +243,7 @@ For support and questions, please open an issue in the repository.
 
 ## 🔄 Migration from PHP
 
-This React version is a complete rewrite of the original PHP5 YellowTip Reservations system, featuring:
+This React version is a complete rewrite of the original PHP5 Myolika Reservations system, featuring:
 
 - Modern, maintainable codebase
 - Type safety with TypeScript

@@ -96,7 +96,7 @@ const LoginForm: React.FC = () => {
           >
             <LoginIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
             <Typography component="h1" variant="h4" gutterBottom>
-              YellowTip Reservations
+              Myolika Reservations
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Sign in to your account

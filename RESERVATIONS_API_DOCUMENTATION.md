@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the backend API endpoints for the YellowTip Reservations system, which has been converted from PHP to React MUI TypeScript with a Node.js/Express backend.
+This document describes the backend API endpoints for the Myolika Reservations system, which has been converted from PHP to React MUI TypeScript with a Node.js/Express backend.
 
 ## Base URL
 
