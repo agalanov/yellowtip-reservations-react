@@ -12,6 +12,7 @@ import ReservationsOverview from './pages/ReservationsOverview';
 import ReservationsDemo from './components/reservations/ReservationsDemo';
 import Rooms from './pages/Rooms';
 import Services from './pages/Services';
+import Therapists from './pages/Therapists';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -161,7 +162,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Layout>
-                      <div>Therapists Page - Coming Soon</div>
+                      <Therapists />
                     </Layout>
                   </ProtectedRoute>
                 }
