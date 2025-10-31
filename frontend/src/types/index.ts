@@ -316,6 +316,71 @@ export interface QuickBooking {
   };
 }
 
+// Roles & Permissions Types
+export interface Role {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    accounts: number;
+    rights: number;
+  };
+  rights?: Array<{
+    right: AccessRight;
+  }>;
+  accounts?: Array<{
+    account: {
+      id: number;
+      loginId: string;
+      firstName?: string;
+      lastName?: string;
+    };
+  }>;
+}
+
+export interface AccessRight {
+  id: number;
+  name: string;
+  appName: string;
+  _count?: {
+    roles: number;
+  };
+  roles?: Array<{
+    role: {
+      id: number;
+      name: string;
+    };
+  }>;
+}
+
+export interface RoleRequest {
+  name: string;
+  rightIds?: number[];
+}
+
+export interface AccessRightRequest {
+  name: string;
+  appName: string;
+}
+
+export interface RoleFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface AccessRightFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  appName?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
 // Filter Types
 export interface BookingFilters {
   page?: number;

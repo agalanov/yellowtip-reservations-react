@@ -18,6 +18,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminCategories from './pages/admin/Categories';
 import AdminCurrencies from './pages/admin/Currencies';
+import Roles from './pages/admin/Roles';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -208,6 +209,16 @@ function App() {
                   <ProtectedRoute>
                     <Layout>
                       <AdminCurrencies />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/roles"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Roles />
                     </Layout>
                   </ProtectedRoute>
                 }

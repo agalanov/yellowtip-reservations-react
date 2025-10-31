@@ -21,7 +21,13 @@ import {
   DashboardStats,
   ReservationData,
   ReservationFilters,
-  QuickBooking
+  QuickBooking,
+  Role,
+  RoleRequest,
+  RoleFilters,
+  AccessRight,
+  AccessRightRequest,
+  AccessRightFilters
 } from '../types';
 
 class ApiService {
@@ -358,6 +364,62 @@ class ApiService {
   async getCalendarView(filters: ReservationFilters): Promise<{ bookings: Booking[] }> {
     const response = await this.api.get<ApiResponse<{ bookings: Booking[] }>>('/reservations/calendar', { params: filters });
     return response.data.data!;
+  }
+
+  // Roles endpoints
+  async getRoles(filters?: RoleFilters): Promise<{ data: Role[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<Role[]>>('/admin/roles', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getRole(id: number): Promise<Role> {
+    const response = await this.api.get<ApiResponse<Role>>(`/admin/roles/${id}`);
+    return response.data.data!;
+  }
+
+  async createRole(role: RoleRequest): Promise<Role> {
+    const response = await this.api.post<ApiResponse<Role>>('/admin/roles', role);
+    return response.data.data!;
+  }
+
+  async updateRole(id: number, role: Partial<RoleRequest>): Promise<Role> {
+    const response = await this.api.put<ApiResponse<Role>>(`/admin/roles/${id}`, role);
+    return response.data.data!;
+  }
+
+  async deleteRole(id: number): Promise<void> {
+    await this.api.delete(`/admin/roles/${id}`);
+  }
+
+  // Access Rights endpoints
+  async getAccessRights(filters?: AccessRightFilters): Promise<{ data: AccessRight[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<AccessRight[]>>('/admin/rights', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getAccessRight(id: number): Promise<AccessRight> {
+    const response = await this.api.get<ApiResponse<AccessRight>>(`/admin/rights/${id}`);
+    return response.data.data!;
+  }
+
+  async createAccessRight(right: AccessRightRequest): Promise<AccessRight> {
+    const response = await this.api.post<ApiResponse<AccessRight>>('/admin/rights', right);
+    return response.data.data!;
+  }
+
+  async updateAccessRight(id: number, right: Partial<AccessRightRequest>): Promise<AccessRight> {
+    const response = await this.api.put<ApiResponse<AccessRight>>(`/admin/rights/${id}`, right);
+    return response.data.data!;
+  }
+
+  async deleteAccessRight(id: number): Promise<void> {
+    await this.api.delete(`/admin/rights/${id}`);
   }
 }
 

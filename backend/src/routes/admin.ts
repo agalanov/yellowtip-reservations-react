@@ -236,6 +236,7 @@ router.post('/users', [
   body('firstName').optional().isString().withMessage('First name must be a string'),
   body('lastName').optional().isString().withMessage('Last name must be a string'),
   body('status').optional().isIn(['ACTIVE', 'LOCKED']).withMessage('Status must be ACTIVE or LOCKED'),
+  body('roleIds').optional().isArray().withMessage('Role IDs must be an array'),
 ], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
@@ -249,7 +250,7 @@ router.post('/users', [
       });
     }
 
-    const { loginId, password, firstName, lastName, status = 'ACTIVE' } = req.body;
+    const { loginId, password, firstName, lastName, status = 'ACTIVE', roleIds = [] } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.account.findUnique({
@@ -264,7 +265,7 @@ router.post('/users', [
     const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user
+    // Create user with roles
     const user = await prisma.account.create({
       data: {
         loginId,
@@ -272,6 +273,11 @@ router.post('/users', [
         firstName,
         lastName,
         status,
+        roles: {
+          create: roleIds.map((roleId: number) => ({
+            roleId,
+          })),
+        },
       },
       select: {
         id: true,
@@ -299,6 +305,7 @@ router.put('/users/:id', [
   body('lastName').optional().isString().withMessage('Last name must be a string'),
   body('status').optional().isIn(['ACTIVE', 'LOCKED']).withMessage('Status must be ACTIVE or LOCKED'),
   body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('roleIds').optional().isArray().withMessage('Role IDs must be an array'),
 ], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
   try {
     const errors = validationResult(req);
@@ -313,7 +320,7 @@ router.put('/users/:id', [
     }
 
     const { id } = req.params;
-    const updateData = req.body;
+    const { roleIds, ...updateData } = req.body;
 
     // Check if user exists
     const existingUser = await prisma.account.findUnique({
@@ -346,6 +353,24 @@ router.put('/users/:id', [
         updatedAt: true,
       },
     });
+
+    // Update roles if provided
+    if (Array.isArray(roleIds)) {
+      // Delete existing roles
+      await prisma.accountRole.deleteMany({
+        where: { accountId: Number(id) },
+      });
+
+      // Create new roles
+      if (roleIds.length > 0) {
+        await prisma.accountRole.createMany({
+          data: roleIds.map((roleId: number) => ({
+            accountId: Number(id),
+            roleId,
+          })),
+        });
+      }
+    }
 
     res.json({
       success: true,
@@ -762,6 +787,478 @@ router.get('/colors', authenticate, async (req: AuthRequest, res, next) => {
     res.json({
       success: true,
       data: colors,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============ Roles Endpoints ============
+// Get all roles
+router.get('/roles', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+
+    const total = await prisma.role.count({ where });
+
+    const roles = await prisma.role.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+      include: {
+        _count: {
+          select: {
+            accounts: true,
+            rights: true,
+          },
+        },
+        rights: {
+          include: {
+            right: {
+              select: {
+                id: true,
+                name: true,
+                appName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      data: roles,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get role by ID
+router.get('/roles/:id', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const role = await prisma.role.findUnique({
+      where: { id: Number(id) },
+      include: {
+        accounts: {
+          include: {
+            account: {
+              select: {
+                id: true,
+                loginId: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        rights: {
+          include: {
+            right: true,
+          },
+        },
+      },
+    });
+
+    if (!role) {
+      throw createError('Role not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: role,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Create role
+router.post('/roles', [
+  body('name').notEmpty().withMessage('Name is required'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { name, rightIds = [] } = req.body;
+
+    // Check if role already exists
+    const existingRole = await prisma.role.findFirst({
+      where: { name },
+    });
+
+    if (existingRole) {
+      throw createError('Role with this name already exists', 400);
+    }
+
+    // Create role with rights
+    const role = await prisma.role.create({
+      data: {
+        name,
+        rights: {
+          create: rightIds.map((rightId: number) => ({
+            rightId,
+          })),
+        },
+      },
+      include: {
+        rights: {
+          include: {
+            right: true,
+          },
+        },
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: role,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Update role
+router.put('/roles/:id', [
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id } = req.params;
+    const { name, rightIds } = req.body;
+
+    // Check if role exists
+    const existingRole = await prisma.role.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!existingRole) {
+      throw createError('Role not found', 404);
+    }
+
+    // Update role
+    const updateData: any = {};
+    if (name) {
+      updateData.name = name;
+    }
+
+    const role = await prisma.role.update({
+      where: { id: Number(id) },
+      data: updateData,
+      include: {
+        rights: {
+          include: {
+            right: true,
+          },
+        },
+      },
+    });
+
+    // Update rights if provided
+    if (Array.isArray(rightIds)) {
+      // Delete existing rights
+      await prisma.roleRight.deleteMany({
+        where: { roleId: Number(id) },
+      });
+
+      // Create new rights
+      if (rightIds.length > 0) {
+        await prisma.roleRight.createMany({
+          data: rightIds.map((rightId: number) => ({
+            roleId: Number(id),
+            rightId,
+          })),
+        });
+      }
+
+      // Fetch updated role with rights
+      const updatedRole = await prisma.role.findUnique({
+        where: { id: Number(id) },
+        include: {
+          rights: {
+            include: {
+              right: true,
+            },
+          },
+        },
+      });
+
+      return res.json({
+        success: true,
+        data: updatedRole,
+      });
+    }
+
+    res.json({
+      success: true,
+      data: role,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Delete role
+router.delete('/roles/:id', authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Check if role exists
+    const role = await prisma.role.findUnique({
+      where: { id: Number(id) },
+      include: {
+        _count: {
+          select: {
+            accounts: true,
+          },
+        },
+      },
+    });
+
+    if (!role) {
+      throw createError('Role not found', 404);
+    }
+
+    // Check if role is assigned to any account
+    if (role._count.accounts > 0) {
+      throw createError('Cannot delete role that is assigned to accounts', 400);
+    }
+
+    await prisma.role.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      success: true,
+      message: 'Role deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============ Access Rights Endpoints ============
+// Get all access rights
+router.get('/rights', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      appName,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { appName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    if (appName) {
+      where.appName = appName;
+    }
+
+    const total = await prisma.accessRight.count({ where });
+
+    const rights = await prisma.accessRight.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+      include: {
+        _count: {
+          select: {
+            roles: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      data: rights,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get access right by ID
+router.get('/rights/:id', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const right = await prisma.accessRight.findUnique({
+      where: { id: Number(id) },
+      include: {
+        roles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!right) {
+      throw createError('Access right not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: right,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Create access right
+router.post('/rights', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('appName').notEmpty().withMessage('App name is required'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { name, appName } = req.body;
+
+    // Check if right already exists
+    const existingRight = await prisma.accessRight.findFirst({
+      where: { name, appName },
+    });
+
+    if (existingRight) {
+      throw createError('Access right with this name and app already exists', 400);
+    }
+
+    const right = await prisma.accessRight.create({
+      data: {
+        name,
+        appName,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: right,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Update access right
+router.put('/rights/:id', [
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+  body('appName').optional().notEmpty().withMessage('App name cannot be empty'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const right = await prisma.accessRight.update({
+      where: { id: Number(id) },
+      data: updateData,
+    });
+
+    res.json({
+      success: true,
+      data: right,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Delete access right
+router.delete('/rights/:id', authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.accessRight.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      success: true,
+      message: 'Access right deleted successfully',
     });
   } catch (error) {
     next(error);

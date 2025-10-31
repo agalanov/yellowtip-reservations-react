@@ -29,7 +29,9 @@ import {
   InputLabel,
   Avatar,
   FormControlLabel,
-  Switch,
+  Checkbox,
+  FormGroup,
+  Divider,
 } from '@mui/material';
 import {
   Add,
@@ -39,7 +41,6 @@ import {
   Search,
   Person,
   CheckCircle,
-  Cancel,
   Lock,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -74,6 +75,7 @@ const Users: React.FC = () => {
     firstName: '',
     lastName: '',
     status: 'ACTIVE' as 'ACTIVE' | 'LOCKED',
+    roleIds: [] as number[],
   });
 
   const queryClient = useQueryClient();
@@ -85,6 +87,12 @@ const Users: React.FC = () => {
   } = useQuery({
     queryKey: ['admin-users', { search: searchQuery }],
     queryFn: () => apiService.getUsers({ search: searchQuery }),
+  });
+
+  // Get all roles for selection
+  const { data: rolesData } = useQuery({
+    queryKey: ['roles', { limit: 1000 }],
+    queryFn: () => apiService.getRoles({ limit: 1000 }),
   });
 
   const createMutation = useMutation({
@@ -122,6 +130,7 @@ const Users: React.FC = () => {
       firstName: '',
       lastName: '',
       status: 'ACTIVE',
+      roleIds: [],
     });
   };
 
@@ -139,6 +148,7 @@ const Users: React.FC = () => {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       status: user.status as 'ACTIVE' | 'LOCKED',
+      roleIds: user.roles?.map(r => r.role.id) || [],
     });
     setDialogOpen(true);
   };
@@ -148,6 +158,7 @@ const Users: React.FC = () => {
       firstName: formData.firstName || undefined,
       lastName: formData.lastName || undefined,
       status: formData.status,
+      roleIds: formData.roleIds,
     };
 
     if (!editingUser) {
@@ -165,6 +176,15 @@ const Users: React.FC = () => {
     } else {
       createMutation.mutate(submitData);
     }
+  };
+
+  const toggleRole = (roleId: number): void => {
+    setFormData(prev => ({
+      ...prev,
+      roleIds: prev.roleIds.includes(roleId)
+        ? prev.roleIds.filter(id => id !== roleId)
+        : [...prev.roleIds, roleId],
+    }));
   };
 
   const handleDeleteUser = (id: number): void => {
@@ -392,7 +412,7 @@ const Users: React.FC = () => {
         <DialogContent>
           {selectedUser && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                   <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.main', fontSize: '1.5rem' }}>
                     {getInitials(selectedUser)}
@@ -405,13 +425,13 @@ const Users: React.FC = () => {
                   </Box>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Login ID
                 </Typography>
                 <Typography variant="body1">{selectedUser.loginId}</Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Status
                 </Typography>
@@ -421,19 +441,19 @@ const Users: React.FC = () => {
                   <Chip label="Locked" size="small" color="error" />
                 )}
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   First Name
                 </Typography>
                 <Typography variant="body1">{selectedUser.firstName || '-'}</Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Last Name
                 </Typography>
                 <Typography variant="body1">{selectedUser.lastName || '-'}</Typography>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Last Login
                 </Typography>
@@ -446,14 +466,14 @@ const Users: React.FC = () => {
                   </Typography>
                 )}
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Created At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedUser.createdAt)}</Typography>
               </Grid>
               {selectedUser.roles && selectedUser.roles.length > 0 && (
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                     Roles ({selectedUser.roles.length})
                   </Typography>
@@ -500,7 +520,7 @@ const Users: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Login ID"
@@ -515,7 +535,7 @@ const Users: React.FC = () => {
                 helperText={!editingUser && !formData.loginId.trim() ? 'Login ID is required' : ''}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Password"
@@ -536,7 +556,7 @@ const Users: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="First Name"
@@ -547,7 +567,7 @@ const Users: React.FC = () => {
                 }))}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Last Name"
@@ -558,7 +578,7 @@ const Users: React.FC = () => {
                 }))}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -573,6 +593,35 @@ const Users: React.FC = () => {
                   <MenuItem value="LOCKED">Locked</MenuItem>
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" gutterBottom>
+                Roles
+              </Typography>
+              <Box sx={{ maxHeight: 200, overflowY: 'auto', mt: 1, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                {rolesData?.data && rolesData.data.length > 0 ? (
+                  <FormGroup>
+                    {rolesData.data.map((role) => (
+                      <FormControlLabel
+                        key={role.id}
+                        control={
+                          <Checkbox
+                            checked={formData.roleIds.includes(role.id)}
+                            onChange={() => toggleRole(role.id)}
+                            size="small"
+                          />
+                        }
+                        label={role.name}
+                      />
+                    ))}
+                  </FormGroup>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No roles available
+                  </Typography>
+                )}
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>
