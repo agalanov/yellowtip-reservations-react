@@ -267,6 +267,68 @@ class ApiService {
     await this.api.delete(`/admin/users/${id}`);
   }
 
+  // Categories endpoints
+  async getCategories(filters?: { search?: string; page?: number; limit?: number }): Promise<{ data: any[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<any[]>>('/admin/categories', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getCategory(id: number): Promise<any> {
+    const response = await this.api.get<ApiResponse<any>>(`/admin/categories/${id}`);
+    return response.data.data!;
+  }
+
+  async createCategory(category: any): Promise<any> {
+    const response = await this.api.post<ApiResponse<any>>('/admin/categories', category);
+    return response.data.data!;
+  }
+
+  async updateCategory(id: number, category: any): Promise<any> {
+    const response = await this.api.put<ApiResponse<any>>(`/admin/categories/${id}`, category);
+    return response.data.data!;
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    await this.api.delete(`/admin/categories/${id}`);
+  }
+
+  // Currency endpoints
+  async getCurrencies(filters?: { search?: string; page?: number; limit?: number }): Promise<{ data: any[]; pagination?: any }> {
+    const response = await this.api.get<ApiResponse<any[]>>('/admin/currencies', { params: filters });
+    return {
+      data: response.data.data!,
+      pagination: response.data.pagination,
+    };
+  }
+
+  async getCurrency(id: number): Promise<any> {
+    const response = await this.api.get<ApiResponse<any>>(`/admin/currencies/${id}`);
+    return response.data.data!;
+  }
+
+  async createCurrency(currency: any): Promise<any> {
+    const response = await this.api.post<ApiResponse<any>>('/admin/currencies', currency);
+    return response.data.data!;
+  }
+
+  async updateCurrency(id: number, currency: any): Promise<any> {
+    const response = await this.api.put<ApiResponse<any>>(`/admin/currencies/${id}`, currency);
+    return response.data.data!;
+  }
+
+  async deleteCurrency(id: number): Promise<void> {
+    await this.api.delete(`/admin/currencies/${id}`);
+  }
+
+  // Colors endpoints
+  async getColors(): Promise<any[]> {
+    const response = await this.api.get<ApiResponse<any[]>>('/admin/colors');
+    return response.data.data!;
+  }
+
   // Reservation endpoints
   async getReservations(filters: ReservationFilters): Promise<ReservationData> {
     const response = await this.api.get<ApiResponse<ReservationData>>('/reservations', { params: filters });

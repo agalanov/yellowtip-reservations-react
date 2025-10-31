@@ -14,6 +14,10 @@ import Rooms from './pages/Rooms';
 import Services from './pages/Services';
 import Therapists from './pages/Therapists';
 import Guests from './pages/Guests';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/Users';
+import AdminCategories from './pages/admin/Categories';
+import AdminCurrencies from './pages/admin/Currencies';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -164,6 +168,46 @@ function App() {
                   <ProtectedRoute>
                     <Layout>
                       <Therapists />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AdminDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AdminUsers />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/categories"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AdminCategories />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/currencies"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AdminCurrencies />
                     </Layout>
                   </ProtectedRoute>
                 }

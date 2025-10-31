@@ -389,4 +389,383 @@ router.delete('/users/:id', authenticate, authorize('admin'), async (req: AuthRe
   }
 });
 
+// ============ Categories Endpoints ============
+// Get all categories
+router.get('/categories', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+
+    const total = await prisma.serviceCategory.count({ where });
+
+    const categories = await prisma.serviceCategory.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+      include: {
+        color: {
+          select: {
+            id: true,
+            name: true,
+            hexCode: true,
+            textColor: true,
+          },
+        },
+        _count: {
+          select: {
+            services: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      data: categories,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get category by ID
+router.get('/categories/:id', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const category = await prisma.serviceCategory.findUnique({
+      where: { id: Number(id) },
+      include: {
+        color: true,
+        services: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!category) {
+      throw createError('Category not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: category,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Create category
+router.post('/categories', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('parentId').optional().isInt().withMessage('Parent ID must be an integer'),
+  body('status').optional().isBoolean().withMessage('Status must be a boolean'),
+  body('colorId').optional().isInt().withMessage('Color ID must be an integer'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { name, parentId = 0, status = false, colorId = 1 } = req.body;
+
+    const category = await prisma.serviceCategory.create({
+      data: {
+        name,
+        parentId,
+        status,
+        colorId,
+      },
+      include: {
+        color: true,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: category,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Update category
+router.put('/categories/:id', [
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+  body('parentId').optional().isInt().withMessage('Parent ID must be an integer'),
+  body('status').optional().isBoolean().withMessage('Status must be a boolean'),
+  body('colorId').optional().isInt().withMessage('Color ID must be an integer'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const category = await prisma.serviceCategory.update({
+      where: { id: Number(id) },
+      data: updateData,
+      include: {
+        color: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      data: category,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Delete category
+router.delete('/categories/:id', authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.serviceCategory.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      success: true,
+      message: 'Category deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============ Currency Endpoints ============
+// Get all currencies
+router.get('/currencies', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 100,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { code: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const total = await prisma.currency.count({ where });
+
+    const currencies = await prisma.currency.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      orderBy: { [sortBy as string]: sortOrder },
+      include: {
+        _count: {
+          select: {
+            services: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      data: currencies,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get currency by ID
+router.get('/currencies/:id', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const currency = await prisma.currency.findUnique({
+      where: { id: Number(id) },
+      include: {
+        services: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!currency) {
+      throw createError('Currency not found', 404);
+    }
+
+    res.json({
+      success: true,
+      data: currency,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Create currency
+router.post('/currencies', [
+  body('code').notEmpty().withMessage('Code is required'),
+  body('name').notEmpty().withMessage('Name is required'),
+  body('symbol').notEmpty().withMessage('Symbol is required'),
+  body('isBase').optional().isBoolean().withMessage('isBase must be a boolean'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { code, name, symbol, isBase = false } = req.body;
+
+    const currency = await prisma.currency.create({
+      data: {
+        code,
+        name,
+        symbol,
+        isBase,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: currency,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Update currency
+router.put('/currencies/:id', [
+  body('code').optional().notEmpty().withMessage('Code cannot be empty'),
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+  body('symbol').optional().notEmpty().withMessage('Symbol cannot be empty'),
+  body('isBase').optional().isBoolean().withMessage('isBase must be a boolean'),
+], authenticate, authorize('admin'), async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+        },
+      });
+    }
+
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const currency = await prisma.currency.update({
+      where: { id: Number(id) },
+      data: updateData,
+    });
+
+    res.json({
+      success: true,
+      data: currency,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Delete currency
+router.delete('/currencies/:id', authenticate, authorize('admin'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.currency.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      success: true,
+      message: 'Currency deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============ Colors Endpoints ============
+// Get all colors (for category color selection)
+router.get('/colors', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const colors = await prisma.colorTable.findMany({
+      orderBy: { name: 'asc' },
+    });
+
+    res.json({
+      success: true,
+      data: colors,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

@@ -27,6 +27,7 @@ import {
   Settings,
   Logout,
   AccountCircle,
+  AdminPanelSettings,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -70,6 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { text: 'Services', icon: <Spa />, path: '/services' },
     { text: 'Guests', icon: <Person />, path: '/guests' },
     { text: 'Therapists', icon: <Spa />, path: '/therapists' },
+    { text: 'Administration', icon: <AdminPanelSettings />, path: '/admin', divider: true },
     { text: 'Settings', icon: <Settings />, path: '/settings' },
   ];
 
@@ -82,21 +84,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Toolbar>
       <Divider />
       <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => {
-                navigate(item.path);
-                setMobileOpen(false);
-              }}
-            >
-              <ListItemIcon>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
+        {menuItems.map((item, index) => (
+          <React.Fragment key={item.text}>
+            {item.divider && index > 0 && <Divider sx={{ my: 1 }} />}
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={location.pathname === item.path || (item.path === '/admin' && location.pathname.startsWith('/admin'))}
+                onClick={() => {
+                  navigate(item.path);
+                  setMobileOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          </React.Fragment>
         ))}
       </List>
     </div>

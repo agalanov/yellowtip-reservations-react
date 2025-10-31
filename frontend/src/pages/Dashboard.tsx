@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Box,
   Grid,
@@ -66,6 +66,10 @@ const Dashboard: React.FC = () => {
   } = useQuery<DashboardStats>({
     queryKey: ['dashboard-stats'],
     queryFn: () => apiService.getDashboardStats(),
+    retry: 1,
+    onError: (error) => {
+      console.error('Dashboard data fetch error:', error);
+    },
   });
 
   if (isLoading) {
@@ -77,9 +81,41 @@ const Dashboard: React.FC = () => {
   }
 
   if (error) {
+    // Extract error message from axios error or standard error
+    let errorMessage = 'Failed to load dashboard data';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'object' && error !== null) {
+      // Handle axios errors
+      const axiosError = error as any;
+      if (axiosError.response) {
+        errorMessage = `Server error: ${axiosError.response.status} - ${axiosError.response.data?.message || axiosError.response.statusText}`;
+      } else if (axiosError.request) {
+        errorMessage = 'Network error: Unable to reach the server. Please check if the backend is running.';
+      } else {
+        errorMessage = axiosError.message || 'Unknown error occurred';
+      }
+    }
+    
+    console.error('Dashboard error details:', error);
+    
     return (
       <Alert severity="error" sx={{ mt: 2 }}>
-        Failed to load dashboard data
+        <Typography variant="body1" component="div" sx={{ fontWeight: 'bold' }}>
+          Failed to load dashboard data
+        </Typography>
+        <Typography variant="body2" component="div" sx={{ mt: 1 }}>
+          {errorMessage}
+        </Typography>
+        <Typography variant="caption" component="div" sx={{ mt: 1, fontStyle: 'italic' }}>
+          Please check:
+          <ul style={{ marginTop: '8px', marginBottom: '0', paddingLeft: '20px' }}>
+            <li>Backend server is running on port 3001</li>
+            <li>You are authenticated (check login status)</li>
+            <li>API endpoint /api/admin/dashboard is accessible</li>
+            <li>Check browser console for more details</li>
+          </ul>
+        </Typography>
       </Alert>
     );
   }
@@ -108,7 +144,7 @@ const Dashboard: React.FC = () => {
       </Typography>
       
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+        <Grid item xs={12} sm={6} md={2}>
           <StatCard
             title="Today's Bookings"
             value={stats?.todayBookings || 0}
@@ -116,7 +152,7 @@ const Dashboard: React.FC = () => {
             color="#1976d2"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+        <Grid item xs={12} sm={6} md={2}>
           <StatCard
             title="Active Bookings"
             value={stats?.totalActiveBookings || 0}
@@ -124,7 +160,7 @@ const Dashboard: React.FC = () => {
             color="#388e3c"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+        <Grid item xs={12} sm={6} md={2}>
           <StatCard
             title="Total Guests"
             value={stats?.totalGuests || 0}
@@ -132,7 +168,7 @@ const Dashboard: React.FC = () => {
             color="#f57c00"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+        <Grid item xs={12} sm={6} md={2}>
           <StatCard
             title="Therapists"
             value={stats?.totalTherapists || 0}
@@ -140,7 +176,7 @@ const Dashboard: React.FC = () => {
             color="#7b1fa2"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+        <Grid item xs={12} sm={6} md={2}>
           <StatCard
             title="Rooms"
             value={stats?.totalRooms || 0}
@@ -148,7 +184,7 @@ const Dashboard: React.FC = () => {
             color="#d32f2f"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+        <Grid item xs={12} sm={6} md={2}>
           <StatCard
             title="Services"
             value={stats?.totalServices || 0}
@@ -159,7 +195,7 @@ const Dashboard: React.FC = () => {
       </Grid>
 
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12 }}>
+        <Grid item xs={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
