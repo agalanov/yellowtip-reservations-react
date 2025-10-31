@@ -13,6 +13,7 @@ import ReservationsDemo from './components/reservations/ReservationsDemo';
 import Rooms from './pages/Rooms';
 import Services from './pages/Services';
 import Therapists from './pages/Therapists';
+import Guests from './pages/Guests';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -152,7 +153,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Layout>
-                      <div>Guests Page - Coming Soon</div>
+                      <Guests />
                     </Layout>
                   </ProtectedRoute>
                 }
