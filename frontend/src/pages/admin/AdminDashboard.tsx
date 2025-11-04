@@ -25,6 +25,8 @@ import {
   AdminPanelSettings,
   Security,
   Work,
+  Public,
+  LocationCity,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -47,7 +49,14 @@ const AdminDashboard: React.FC = () => {
       items: [
         { text: 'System Configuration', path: '/admin/config', icon: <Settings /> },
         { text: 'Languages', path: '/admin/languages', icon: <Language /> },
-        { text: 'Regional Settings', path: '/admin/regions', icon: <LocationOn /> },
+      ],
+    },
+    {
+      title: 'Regional Settings',
+      icon: <LocationOn />,
+      items: [
+        { text: 'Countries', path: '/admin/countries', icon: <Public /> },
+        { text: 'Cities', path: '/admin/cities', icon: <LocationCity /> },
       ],
     },
     {
@@ -175,6 +184,56 @@ const AdminDashboard: React.FC = () => {
                   onClick={() => navigate('/admin/roles')}
                 >
                   Roles & Permissions
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Public />}
+                  onClick={() => navigate('/admin/countries')}
+                >
+                  Countries
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<LocationCity />}
+                  onClick={() => navigate('/admin/cities')}
+                >
+                  Cities
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Language />}
+                  onClick={() => navigate('/admin/languages')}
+                >
+                  Languages
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Receipt />}
+                  onClick={() => navigate('/admin/taxes')}
+                >
+                  Taxes
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<AccessTime />}
+                  onClick={() => navigate('/admin/opening-hours')}
+                >
+                  Opening Hours
                 </Button>
               </Grid>
             </Grid>

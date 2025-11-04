@@ -20,6 +20,11 @@ import AdminCategories from './pages/admin/Categories';
 import AdminCurrencies from './pages/admin/Currencies';
 import Roles from './pages/admin/Roles';
 import SystemConfig from './pages/admin/SystemConfig';
+import Countries from './pages/admin/Countries';
+import Cities from './pages/admin/Cities';
+import Languages from './pages/admin/Languages';
+import Taxes from './pages/admin/Taxes';
+import OpeningHours from './pages/admin/OpeningHours';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -230,6 +235,56 @@ function App() {
                   <ProtectedRoute>
                     <Layout>
                       <SystemConfig />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/countries"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Countries />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/cities"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Cities />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/languages"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Languages />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/taxes"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Taxes />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/opening-hours"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <OpeningHours />
                     </Layout>
                   </ProtectedRoute>
                 }
