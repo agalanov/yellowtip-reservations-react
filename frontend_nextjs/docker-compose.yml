@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: yellowtip-nextjs-postgres
+    environment:
+      POSTGRES_DB: yellowtip_reservations
+      POSTGRES_USER: yellowtip_user
+      POSTGRES_PASSWORD: yellowtip_password
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - yellowtip-nextjs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yellowtip_user -d yellowtip_reservations"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: yellowtip-nextjs-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - yellowtip-nextjs-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS Backend API
+  backend:
+    build:
+      context: ../backend_nestjs
+      dockerfile: Dockerfile.dev
+    container_name: yellowtip-nextjs-backend
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://yellowtip_user:yellowtip_password@postgres:5432/yellowtip_reservations
+      FRONTEND_URL: http://localhost:3000
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: my-super-secret-jwt-key
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../backend_nestjs:/app
+      - /app/node_modules
+      - ../backend_nestjs/prisma:/app/prisma
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - yellowtip-nextjs-network
+    command: npm run start:dev
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: yellowtip-nextjs-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+      NEXT_PUBLIC_WS_URL: ws://localhost:3001
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - yellowtip-nextjs-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  yellowtip-nextjs-network:
+    driver: bridge
+

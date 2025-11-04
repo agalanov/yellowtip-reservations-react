@@ -1,0 +1,587 @@
+// API Response Types
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    stack?: string;
+  };
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// Authentication Types
+export interface User {
+  id: number;
+  loginId: string;
+  firstName?: string;
+  lastName?: string;
+  status: string;
+}
+
+export interface LoginRequest {
+  loginId: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: User;
+}
+
+// Booking Types
+export interface Booking {
+  id: number;
+  date: number;
+  time: number;
+  service: {
+    id: number;
+    name: string;
+    duration: number;
+    price: number;
+  };
+  room: {
+    id: number;
+    name: string;
+  };
+  guest: {
+    id: number;
+    firstName?: string;
+    lastName?: string;
+  };
+  therapist?: {
+    id: number;
+    firstName?: string;
+    lastName?: string;
+  };
+  confirmed: boolean;
+  cancelled: boolean;
+  comment?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookingRequest {
+  date: number;
+  serviceId: number;
+  servicePackageId?: number;
+  time: number;
+  roomId: number;
+  guestId: number;
+  therapistId?: number;
+  comment?: string;
+  preDuration?: number;
+  postDuration?: number;
+  priority?: number;
+  locker?: string;
+  duration?: number;
+  price?: number;
+}
+
+// Room Types
+export interface Room {
+  id: number;
+  name: string;
+  description?: string;
+  priority: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  services?: Array<{
+    service: {
+      id: number;
+      name: string;
+      duration: number;
+      price: number;
+    };
+  }>;
+  bookings?: Array<{
+    id: number;
+    date: number;
+    time: number;
+    duration: number;
+    guest: {
+      id: number;
+      firstName?: string;
+      lastName?: string;
+    };
+    service: {
+      id: number;
+      name: string;
+    };
+  }>;
+}
+
+export interface RoomRequest {
+  name: string;
+  description?: string;
+  priority?: number;
+  active?: boolean;
+}
+
+// Service Types
+export interface Service {
+  id: number;
+  category: {
+    id: number;
+    name: string;
+    hexcode?: string;
+    textcolor?: string;
+  };
+  currency: {
+    id: number;
+    code: string;
+    symbol: string;
+  };
+  name: string;
+  description?: string;
+  price?: number;
+  duration?: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  rooms?: Array<{
+    room: {
+      id: number;
+      name: string;
+    };
+  }>;
+}
+
+export interface ServiceRequest {
+  categoryId: number;
+  currencyId: number;
+  name: string;
+  description?: string;
+  price?: number;
+  duration?: number;
+  preDuration?: number;
+  postDuration?: number;
+  space?: number;
+  therapistType?: string;
+  active?: boolean;
+  roomType?: string;
+  variableTime?: boolean;
+  variablePrice?: boolean;
+  minimalTime?: number;
+  maximalTime?: number;
+  timeUnit?: number;
+}
+
+// Guest Types
+export interface Guest {
+  id: number;
+  firstName?: string;
+  lastName?: string;
+  createdAt: string;
+  updatedAt: string;
+  attributes?: Array<{
+    id: number;
+    name: string;
+    value: string;
+  }>;
+  bookings?: Array<{
+    id: number;
+    date: number;
+    time: number;
+    service: {
+      id: number;
+      name: string;
+    };
+    room: {
+      id: number;
+      name: string;
+    };
+    therapist?: {
+      id: number;
+      firstName?: string;
+      lastName?: string;
+    };
+  }>;
+}
+
+export interface GuestRequest {
+  firstName?: string;
+  lastName?: string;
+  attributes?: Array<{
+    attributeId: number;
+    value: string;
+  }>;
+}
+
+// Therapist Types
+export interface Therapist {
+  id: number;
+  firstName?: string;
+  lastName?: string;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+  attributes?: Array<{
+    id: number;
+    name: string;
+    value: string;
+  }>;
+  services?: Array<{
+    id: number;
+    name: string;
+  }>;
+  bookings?: Array<{
+    id: number;
+    date: number;
+    time: number;
+    service: {
+      id: number;
+      name: string;
+    };
+    room: {
+      id: number;
+      name: string;
+    };
+    guest: {
+      id: number;
+      firstName?: string;
+      lastName?: string;
+    };
+  }>;
+}
+
+export interface TherapistRequest {
+  firstName?: string;
+  lastName?: string;
+  priority?: number;
+  attributes?: Array<{
+    attributeId: number;
+    value: string;
+  }>;
+  services?: number[];
+}
+
+// Dashboard Types
+export interface DashboardStats {
+  todayBookings: number;
+  totalActiveBookings: number;
+  totalGuests: number;
+  totalTherapists: number;
+  totalRooms: number;
+  totalServices: number;
+  recentBookings: Array<{
+    id: number;
+    date: number;
+    time: number;
+    service: {
+      name: string;
+    };
+    room: {
+      name: string;
+    };
+    guest: {
+      firstName?: string;
+      lastName?: string;
+    };
+    therapist?: {
+      firstName?: string;
+      lastName?: string;
+    };
+  }>;
+}
+
+// Reservation Types
+export interface ReservationData {
+  bookings: Booking[];
+  rooms: Room[];
+  therapists: Therapist[];
+  services: Service[];
+  quickBookings: QuickBooking[];
+}
+
+export interface QuickBooking {
+  id: number;
+  name: string;
+  service: {
+    id: number;
+    name: string;
+    duration: number;
+    price: number;
+  };
+  category: {
+    id: number;
+    name: string;
+    hexcode: string;
+    textcolor: string;
+  };
+}
+
+// Roles & Permissions Types
+export interface Role {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    accounts: number;
+    rights: number;
+  };
+  rights?: Array<{
+    right: AccessRight;
+  }>;
+  accounts?: Array<{
+    account: {
+      id: number;
+      loginId: string;
+      firstName?: string;
+      lastName?: string;
+    };
+  }>;
+}
+
+export interface AccessRight {
+  id: number;
+  name: string;
+  appName: string;
+  _count?: {
+    roles: number;
+  };
+  roles?: Array<{
+    role: {
+      id: number;
+      name: string;
+    };
+  }>;
+}
+
+export interface RoleRequest {
+  name: string;
+  rightIds?: number[];
+}
+
+export interface AccessRightRequest {
+  name: string;
+  appName: string;
+}
+
+export interface RoleFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface AccessRightFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  appName?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Filter Types
+export interface BookingFilters {
+  page?: number;
+  limit?: number;
+  dateFrom?: number;
+  dateTo?: number;
+  roomId?: number;
+  serviceId?: number;
+  therapistId?: number;
+  guestId?: number;
+  confirmed?: boolean;
+  cancelled?: boolean;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ReservationFilters {
+  date?: string;
+  viewMode?: 'day' | 'week' | 'month';
+  roomId?: number;
+  therapistId?: number;
+  serviceId?: number;
+}
+
+export interface RoomFilters {
+  page?: number;
+  limit?: number;
+  active?: boolean;
+  serviceId?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ServiceFilters {
+  page?: number;
+  limit?: number;
+  categoryId?: number;
+  active?: boolean;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface GuestFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface TherapistFilters {
+  page?: number;
+  limit?: number;
+  serviceId?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Regional Settings Types
+export interface Country {
+  id: number;
+  name: string;
+  code: string;
+  topPulldown?: string;
+  isDefault?: string;
+  cities?: City[];
+}
+
+export interface City {
+  id: number;
+  name: string;
+  country: number;
+  isDefault?: string;
+  countryRef?: {
+    id: number;
+    name: string;
+    code: string;
+  };
+}
+
+export interface CountryRequest {
+  name: string;
+  code: string;
+  topPulldown?: string;
+  isDefault?: string;
+}
+
+export interface CityRequest {
+  name: string;
+  country: number;
+  isDefault?: string;
+}
+
+export interface CountryFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CityFilters {
+  page?: number;
+  limit?: number;
+  country?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Language Types
+export interface Language {
+  id: string;
+  name: string;
+  available: boolean;
+  availableGuests: boolean;
+  availableReservations: boolean;
+  isDefault: boolean;
+}
+
+export interface LanguageRequest {
+  id: string;
+  name: string;
+  available?: boolean;
+  availableGuests?: boolean;
+  availableReservations?: boolean;
+  isDefault?: boolean;
+}
+
+export interface LanguageFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  available?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Tax Types
+export interface Tax {
+  id: number;
+  code: string;
+  description?: string;
+  tax1?: number;
+  tax1Text?: string;
+  tax2?: number;
+  tax2Text?: string;
+  tax2On1?: boolean;
+  real?: boolean;
+}
+
+export interface TaxRequest {
+  code: string;
+  description?: string;
+  tax1?: number;
+  tax1Text?: string;
+  tax2?: number;
+  tax2Text?: string;
+  tax2On1?: boolean;
+  real?: boolean;
+}
+
+export interface TaxFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// Opening Hours Types
+export interface WorkTimeDay {
+  weekday: number;
+  startTime: number;
+  endTime: number;
+}
+
+export interface WorkTimeDate {
+  workDate: number;
+  startTime: number;
+  endTime: number;
+}
+
+export interface WorkTimeHoliday {
+  startDate: number;
+  endDate: number;
+}
+
+export interface OpeningHoursRequest {
+  days: Array<{
+    weekday: number;
+    startTime: number;
+    endTime: number;
+    enabled: boolean;
+  }>;
+}
+
+
+
+

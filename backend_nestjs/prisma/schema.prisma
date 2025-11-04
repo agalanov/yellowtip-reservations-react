@@ -1,0 +1,615 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model Account {
+  id                Int      @id @default(autoincrement())
+  loginId           String   @unique @map("account_lid")
+  password          String   @map("account_pwd")
+  firstName         String?  @map("account_firstname")
+  lastName          String?  @map("account_lastname")
+  lastLogin         Int?     @map("account_lastlogin")
+  lastLoginFrom     String?  @map("account_lastloginfrom")
+  lastPasswordChange Int?    @map("account_lastpwd_change")
+  status            AccountStatus @map("account_status") @default(ACTIVE)
+  expires           Int?     @map("account_expires")
+  type              String?  @map("account_type")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  departments       AccountDepartment[]
+  roles             AccountRole[]
+  sessions          Session[]
+  logs              Log[]
+  bookingLogs       BookingLog[]
+
+  @@map("ytr_accounts")
+}
+
+model Department {
+  id          Int    @id @default(autoincrement()) @map("department_id")
+  name        String @map("department_name")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  accounts    AccountDepartment[]
+
+  @@map("ytr_departments")
+}
+
+model AccountDepartment {
+  accountId    Int @map("account_id")
+  departmentId Int @map("department_id")
+
+  account      Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([accountId, departmentId])
+  @@map("ytr_accounts_departments")
+}
+
+model Role {
+  id        Int    @id @default(autoincrement()) @map("role_id")
+  name      String @map("role_name")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  accounts  AccountRole[]
+  rights    RoleRight[]
+
+  @@map("ytr_roles")
+}
+
+model AccountRole {
+  accountId Int @map("account_id")
+  roleId    Int @map("role_id")
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  role      Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([accountId, roleId])
+  @@map("ytr_accounts_roles")
+}
+
+model AccessRight {
+  id      Int    @id @default(autoincrement()) @map("right_id")
+  name    String @map("right_name")
+  appName String @map("app_name")
+
+  // Relations
+  roles   RoleRight[]
+
+  @@map("ytr_access_rights")
+}
+
+model RoleRight {
+  roleId  Int @map("role_id")
+  rightId Int @map("right_id")
+
+  role    Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  right   AccessRight @relation(fields: [rightId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, rightId])
+  @@map("ytr_roles_rights")
+}
+
+// Session Management
+model Session {
+  id           String   @id @map("session_id")
+  loginId      String?  @map("session_lid")
+  ip           String?  @map("session_ip")
+  loginTime    Int?     @map("session_logintime")
+  lastActivity Int?     @map("session_dla")
+  action       String?  @map("session_action")
+  flags        String?  @map("session_flags")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  account      Account? @relation(fields: [loginId], references: [loginId])
+
+  @@map("ytr_sessions")
+}
+
+// Core Business Models
+model Room {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  priority    Int     @default(5) @map("respriority")
+  active      Boolean @default(true)
+  deleted     Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  services              RoomService[]
+  bookings              Booking[]
+  roomServiceCategories RoomServiceCategory[]
+
+  @@map("ytr_room")
+}
+
+model Service {
+  id            Int     @id @default(autoincrement())
+  categoryId    Int     @map("category_id")
+  currencyId    Int     @map("currency")
+  name          String
+  description   String?
+  price         Float?
+  duration      Int?    // in minutes
+  preDuration   Int     @default(0) @map("preduration")
+  postDuration  Int     @default(0) @map("postduration")
+  space         Int     @default(1)
+  therapistType String  @default("1") @map("therapisttype")
+  active        Boolean @default(true)
+  roomType      String  @default("1") @map("roomtype")
+  variableTime  Boolean @default(false) @map("variabletime")
+  variablePrice Boolean @default(false) @map("variableprice")
+  minimalTime   Int     @default(5) @map("minimaltime")
+  maximalTime   Int     @default(0) @map("maximaltime")
+  timeUnit      Int     @default(5) @map("timeunit")
+  quickBooking  Boolean @default(false) @map("quickbooking")
+  deleted       Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  category      ServiceCategory @relation(fields: [categoryId], references: [id])
+  currency      Currency @relation(fields: [currencyId], references: [id])
+  rooms         RoomService[]
+  therapists    TherapistService[]
+  bookings      Booking[]
+
+  @@map("ytr_service")
+}
+
+model ServiceCategory {
+  id        Int     @id @default(autoincrement())
+  name      String
+  parentId  Int     @default(0) @map("parent_id")
+  status    Boolean @default(false)
+  colorId   Int     @map("color")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  color     ColorTable @relation(fields: [colorId], references: [id])
+  services  Service[]
+  rooms     RoomServiceCategory[]
+
+  @@map("ytr_servicecategory")
+}
+
+model ColorTable {
+  id         Int    @id @default(autoincrement())
+  name       String
+  hexCode    String @map("hexcode")
+  textColor  String @map("textcolor")
+  beforeColor String @default("FFFFFF") @map("beforecolor")
+  afterColor  String @default("FFFFFF") @map("aftercolor")
+
+  // Relations
+  categories ServiceCategory[]
+
+  @@map("ytr_colortable")
+}
+
+model Currency {
+  id         Int    @id @default(autoincrement())
+  code       String @map("currency_code")
+  name       String @map("currency_name")
+  symbol     String @map("currency_symbol")
+  isBase     Boolean @default(false) @map("base")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  services   Service[]
+
+  @@map("ytr_currency")
+}
+
+model RoomService {
+  roomId    Int @map("room_id")
+  serviceId Int @map("service_id")
+
+  room      Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, serviceId])
+  @@map("ytr_room_service")
+}
+
+model RoomServiceCategory {
+  roomId           Int @map("room")
+  serviceCategoryId Int @map("servicecategory")
+
+  room             Room            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  serviceCategory  ServiceCategory @relation(fields: [serviceCategoryId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, serviceCategoryId])
+  @@map("ytr_room_servicecategory")
+}
+
+model Guest {
+  id          Int     @id @default(autoincrement())
+  firstLetter String? @map("firstletter")
+  lastName    String? @map("lastname")
+  firstName   String? @map("firstname")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  attributes  GuestAttribute[]
+  bookings    Booking[]
+
+  @@map("ytr_guest")
+}
+
+model GuestAttribute {
+  id          Int     @id @default(autoincrement())
+  guestId     Int     @map("guest")
+  attributeId Int     @map("guestattributename")
+  multiple    Int     @default(0) @map("multipleattribute")
+  value       String?
+
+  guest       Guest           @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  attribute   GuestAttributeName @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@unique([guestId, attributeId, multiple])
+  @@map("ytr_guest_guest_attributename")
+}
+
+model GuestAttributeName {
+  id            Int     @id @default(autoincrement())
+  type          String?
+  name          String?
+  priority      Int     @default(0)
+  showInResults Boolean @default(false) @map("showinresults")
+  enabled       Boolean @default(true)
+
+  // Relations
+  attributes    GuestAttribute[]
+
+  @@map("ytr_guestattributename")
+}
+
+model Therapist {
+  id          Int     @id @default(autoincrement())
+  firstLetter String? @map("firstletter")
+  lastName    String? @map("lastname")
+  firstName   String? @map("firstname")
+  priority    Int     @default(5) @map("respriority")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  attributes  TherapistAttribute[]
+  services    TherapistService[]
+  bookings    Booking[]
+  workTimes   TherapistWorkTime[]
+  holidays    TherapistHoliday[]
+
+  @@map("ytr_therapist")
+}
+
+model TherapistAttribute {
+  id          Int     @id @default(autoincrement())
+  therapistId Int     @map("therapist")
+  attributeId Int     @map("therapistattributename")
+  multiple    Int     @default(0) @map("multipleattribute")
+  value       String?
+
+  therapist   Therapist           @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  attribute   TherapistAttributeName @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@unique([therapistId, attributeId, multiple])
+  @@map("ytr_therapist_therapistattrib")
+}
+
+model TherapistAttributeName {
+  id            Int     @id @default(autoincrement())
+  type          String?
+  name          String?
+  priority      Int     @default(0)
+  showInResults Boolean @default(false) @map("showinresults")
+
+  // Relations
+  attributes    TherapistAttribute[]
+
+  @@map("ytr_therapistattributename")
+}
+
+model TherapistService {
+  therapistId Int @map("therapist_id")
+  serviceId   Int @map("service_id")
+
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  service     Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([therapistId, serviceId])
+  @@map("ytr_therapist_service")
+}
+
+model TherapistWorkTime {
+  weekday      Int     @map("weekday")
+  therapistId  Int     @map("therapist")
+  workDate     Int     @map("workdate")
+  startTime    Int?    @map("starttime")
+  endTime      Int?    @map("endtime")
+  reasonId     Int     @map("worktimereason")
+
+  therapist    Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  reason       WorkTimeReason @relation(fields: [reasonId], references: [id])
+
+  @@id([weekday, therapistId, workDate])
+  @@map("ytr_therapistworktime")
+}
+
+model WorkTimeReason {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  // Relations
+  workTimes TherapistWorkTime[]
+
+  @@map("ytr_worktimereason")
+}
+
+model TherapistHoliday {
+  id          Int     @id @default(autoincrement()) @map("holidaytype")
+  therapistId Int     @map("therapist")
+  startDate   Int?    @map("startdate")
+  endDate     Int?    @map("enddate")
+  reasonId    Int     @map("holidayreason")
+
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  reason      HolidayReason @relation(fields: [reasonId], references: [id])
+
+  @@map("ytr_therapistholidays")
+}
+
+model HolidayReason {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  // Relations
+  holidays TherapistHoliday[]
+
+  @@map("ytr_holidayreason")
+}
+
+// Booking System
+model Booking {
+  id              Int     @id @default(autoincrement())
+  date            Int     // Unix timestamp
+  serviceId       Int     @map("service")
+  servicePackageId Int?   @map("servicepackage")
+  time            Int     // Unix timestamp
+  roomId          Int     @map("room")
+  guestId         Int     @map("guest")
+  therapistId     Int?    @map("therapist")
+  confirmed       Boolean @default(false) @map("confirm")
+  cancelled       Boolean @default(false) @map("cancell")
+  comment         String?
+  cancelReasonId  Int?    @map("cancellreason")
+  preDuration     Int     @default(0) @map("preduration")
+  postDuration    Int     @default(0) @map("postduration")
+  priority        Int     @default(1)
+  locker          String  @default("")
+  noteId          Int?    @map("note")
+  duration        Int     @default(0)
+  price           Float   @default(0)
+  cancelledDiscount Float @default(0) @map("cancelldiscount")
+  clipboardOwner  Int?    @map("clipboard_owner")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  service         Service @relation(fields: [serviceId], references: [id])
+  room            Room    @relation(fields: [roomId], references: [id])
+  guest           Guest   @relation(fields: [guestId], references: [id])
+  therapist       Therapist? @relation(fields: [therapistId], references: [id])
+  cancelReason    CancellationReason? @relation(fields: [cancelReasonId], references: [id])
+  note            BookingNote? @relation(fields: [noteId], references: [id])
+  payments        BookingPayment[]
+  invoices        BookingInvoice[]
+  logs            BookingLog[]
+
+  @@map("ytr_booking")
+}
+
+model BookingNote {
+  id      Int    @id @default(autoincrement())
+  note    String
+
+  // Relations
+  bookings Booking[]
+
+  @@map("ytr_booking_note")
+}
+
+model CancellationReason {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  // Relations
+  bookings Booking[]
+
+  @@map("ytr_cancellationreason")
+}
+
+model BookingPayment {
+  bookingId     Int @map("booking")
+  paymentTypeId Int @map("paymenttype")
+  voucherId     Int? @map("voucher")
+  amount        Int @default(0)
+
+  booking       Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
+  voucher       Voucher? @relation(fields: [voucherId], references: [id])
+
+  @@id([bookingId, paymentTypeId])
+  @@map("ytr_booking_payment")
+}
+
+model PaymentType {
+  id           Int    @id @default(autoincrement())
+  name         String
+  undeleteable Boolean @default(false)
+
+  // Relations
+  payments     BookingPayment[]
+
+  @@map("ytr_paymenttype")
+}
+
+model Voucher {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  // Relations
+  payments BookingPayment[]
+
+  @@map("ytr_voucher")
+}
+
+model BookingInvoice {
+  bookingId  Int  @id @map("booking")
+  includeVat Boolean @default(true) @map("includevat")
+
+  booking    Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("ytr_booking_invoice")
+}
+
+model BookingLog {
+  id        Int     @id @default(autoincrement())
+  bookingId Int     @map("booking")
+  accountId Int     @map("account")
+  action    String  @default("Edit")
+  date      Int
+
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  account   Account @relation(fields: [accountId], references: [id])
+
+  @@map("ytr_booking_log")
+}
+
+// System Models
+model Log {
+  id         Int     @id @default(autoincrement()) @map("log_id")
+  message    String?
+  date       Int?
+  accountId  Int?    @map("account_id")
+  entityType String? @map("entity_type")
+  comment    String?
+  entityId   Int     @map("entity_id")
+
+  account    Account? @relation(fields: [accountId], references: [id])
+
+  @@map("ytr_logs")
+}
+
+model Language {
+  id                    String @id @map("lang_id")
+  name                  String @map("lang_name")
+  available             Boolean @default(false)
+  availableGuests       Boolean @default(false) @map("available_guests")
+  availableReservations Boolean @default(false) @map("available_reservations")
+  isDefault             Boolean @default(false) @map("lang_default")
+
+  @@map("ytr_languages")
+}
+
+model Configuration {
+  app   String? @map("config_app")
+  name  String  @id @map("config_name")
+  value String? @map("config_value")
+
+  @@map("ytr_config")
+}
+
+// Regional Settings
+model Country {
+  id          Int    @id @default(autoincrement()) @map("country_id")
+  name        String @map("country_name")
+  code        String @unique @map("country_code")
+  topPulldown String? @default("N") @map("toppulldown")
+  isDefault   String? @default("N") @map("country_default")
+
+  // Relations
+  cities      City[]
+
+  @@map("ytr_countries")
+}
+
+model City {
+  id          Int    @id @default(autoincrement())
+  name        String
+  country     Int    @map("country")
+  isDefault   String? @default("N") @map("city_default")
+
+  // Relations
+  countryRef  Country @relation(fields: [country], references: [id])
+
+  @@map("ytr_city")
+}
+
+model Tax {
+  id          Int     @id @default(autoincrement()) @map("taxes_id")
+  code        String  @map("taxes_code")
+  description String? @map("taxes_descr")
+  tax1        Float?  @map("taxes_tax1")
+  tax1Text    String? @map("taxes_tax1_txt")
+  tax2        Float?  @map("taxes_tax2")
+  tax2Text    String? @map("taxes_tax2_txt")
+  tax2On1     Boolean? @default(false) @map("taxes_2on1")
+  real        Boolean? @default(false) @map("taxes_real")
+
+  @@map("ytr_taxes")
+}
+
+// Opening Hours
+model WorkTimeDay {
+  weekday   Int @id @map("weekday")
+  startTime Int @map("starttime")
+  endTime   Int @map("endtime")
+
+  @@map("ytr_worktime_day")
+}
+
+model WorkTimeDate {
+  workDate  Int @id @map("workdate")
+  startTime Int @map("starttime")
+  endTime   Int @map("endtime")
+
+  @@map("ytr_worktime_date")
+}
+
+model WorkTimeHoliday {
+  startDate Int @map("startdate")
+  endDate   Int @map("enddate")
+
+  @@id([startDate, endDate])
+  @@map("ytr_worktime_holidays")
+}
+
+// Enums
+enum AccountStatus {
+  ACTIVE @map("A")
+  LOCKED @map("L")
+}
