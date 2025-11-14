@@ -1,6 +1,6 @@
 # Myolika Reservations - React Version
 
-A modern reservation management system for spas and wellness centers, built with React, TypeScript, Node.js, Prisma, and PostgreSQL.
+A modern reservation management system for spas and wellness centers, built with React, TypeScript, Node.js, Prisma, Nest, Next and PostgreSQL.
 
 ## 🚀 Features
 
