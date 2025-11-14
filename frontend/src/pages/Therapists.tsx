@@ -20,7 +20,6 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  Grid,
   InputAdornment,
   Tooltip,
   MenuItem,
@@ -36,9 +35,9 @@ import {
   Visibility,
   Search,
   Person,
-  CheckCircle,
-  Cancel,
   Star,
+  PhotoCamera,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '../services/api';
@@ -58,6 +57,9 @@ const Therapists: React.FC = () => {
     lastName: '',
     priority: 5,
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -110,6 +112,8 @@ const Therapists: React.FC = () => {
       lastName: '',
       priority: 5,
     });
+    setAvatarFile(null);
+    setAvatarPreview(null);
   };
 
   const handleCreateTherapist = (): void => {
@@ -125,17 +129,88 @@ const Therapists: React.FC = () => {
       lastName: therapist.lastName || '',
       priority: therapist.priority,
     });
+    // Set avatar preview if therapist has avatar
+    if ((therapist as any).avatarUrl) {
+      setAvatarPreview((therapist as any).avatarUrl);
+    } else {
+      setAvatarPreview(null);
+    }
+    setAvatarFile(null);
     setDialogOpen(true);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+      setAvatarFile(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
   };
 
   const handleSubmit = (): void => {
     if (editingTherapist) {
-      updateMutation.mutate({
-        id: editingTherapist.id,
-        data: formData,
-      });
+      // First update therapist data
+      updateMutation.mutate(
+        {
+          id: editingTherapist.id,
+          data: formData,
+        },
+        {
+          onSuccess: async () => {
+            // Then upload avatar if file is selected
+            if (avatarFile) {
+              setUploadingAvatar(true);
+              try {
+                await apiService.uploadTherapistAvatar(editingTherapist.id, avatarFile);
+                queryClient.invalidateQueries({ queryKey: ['therapists'] });
+              } catch (error) {
+                console.error('Failed to upload avatar:', error);
+                alert('Failed to upload avatar. Please try again.');
+              } finally {
+                setUploadingAvatar(false);
+              }
+            }
+          },
+        }
+      );
     } else {
-      createMutation.mutate(formData);
+      // For new therapist, create first, then upload avatar
+      createMutation.mutate(formData, {
+        onSuccess: async (newTherapist) => {
+          if (avatarFile && newTherapist) {
+            setUploadingAvatar(true);
+            try {
+              await apiService.uploadTherapistAvatar(newTherapist.id, avatarFile);
+              queryClient.invalidateQueries({ queryKey: ['therapists'] });
+            } catch (error) {
+              console.error('Failed to upload avatar:', error);
+              alert('Therapist created but failed to upload avatar. Please try uploading it again.');
+            } finally {
+              setUploadingAvatar(false);
+            }
+          }
+        },
+      });
     }
   };
 
@@ -200,8 +275,8 @@ const Therapists: React.FC = () => {
       {/* Search and Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={4}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 10px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 placeholder="Search therapists..."
@@ -215,8 +290,8 @@ const Therapists: React.FC = () => {
                   ),
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 10px)' }, minWidth: 0 }}>
               <FormControl fullWidth>
                 <InputLabel>Service</InputLabel>
                 <Select
@@ -234,8 +309,8 @@ const Therapists: React.FC = () => {
                   {/* TODO: Load services for filter */}
                 </Select>
               </FormControl>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
@@ -259,8 +334,11 @@ const Therapists: React.FC = () => {
                   <TableRow key={therapist.id} hover>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Avatar sx={{ bgcolor: 'primary.main' }}>
-                          {getInitials(therapist)}
+                        <Avatar 
+                          sx={{ bgcolor: 'primary.main' }}
+                          src={(therapist as any).avatarUrl || undefined}
+                        >
+                          {!((therapist as any).avatarUrl) && getInitials(therapist)}
                         </Avatar>
                         <Box>
                           <Typography variant="body1" fontWeight="medium">
@@ -390,11 +468,14 @@ const Therapists: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           {selectedTherapist && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                  <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.main', fontSize: '1.5rem' }}>
-                    {getInitials(selectedTherapist)}
+                  <Avatar 
+                    sx={{ width: 64, height: 64, bgcolor: 'primary.main', fontSize: '1.5rem' }}
+                    src={(selectedTherapist as any).avatarUrl || undefined}
+                  >
+                    {!((selectedTherapist as any).avatarUrl) && getInitials(selectedTherapist)}
                   </Avatar>
                   <Box>
                     <Typography variant="h6">{getFullName(selectedTherapist)}</Typography>
@@ -403,20 +484,20 @@ const Therapists: React.FC = () => {
                     </Typography>
                   </Box>
                 </Box>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   First Name
                 </Typography>
                 <Typography variant="body1">{selectedTherapist.firstName || '-'}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Last Name
                 </Typography>
                 <Typography variant="body1">{selectedTherapist.lastName || '-'}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Priority
                 </Typography>
@@ -424,21 +505,21 @@ const Therapists: React.FC = () => {
                   <Star fontSize="small" color={selectedTherapist.priority >= 7 ? 'error' : selectedTherapist.priority >= 4 ? 'warning' : 'action'} />
                   <Typography variant="body1">{selectedTherapist.priority}</Typography>
                 </Box>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Created At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedTherapist.createdAt)}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Updated At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedTherapist.updatedAt)}</Typography>
-              </Grid>
+              </Box>
               {selectedTherapist.services && selectedTherapist.services.length > 0 && (
-                <Grid item xs={12}>
+                <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                     Services ({selectedTherapist.services.length})
                   </Typography>
@@ -452,10 +533,10 @@ const Therapists: React.FC = () => {
                       />
                     ))}
                   </Box>
-                </Grid>
+                </Box>
               )}
               {selectedTherapist.attributes && selectedTherapist.attributes.length > 0 && (
-                <Grid item xs={12}>
+                <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                     Attributes ({selectedTherapist.attributes.length})
                   </Typography>
@@ -468,9 +549,9 @@ const Therapists: React.FC = () => {
                       />
                     ))}
                   </Box>
-                </Grid>
+                </Box>
               )}
-            </Grid>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -500,8 +581,61 @@ const Therapists: React.FC = () => {
           {editingTherapist ? 'Edit Therapist' : 'Create New Therapist'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            {/* Avatar Upload Section */}
+            <Box sx={{ flex: '1 1 100%', minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <Avatar
+                sx={{
+                  width: 120,
+                  height: 120,
+                  bgcolor: 'primary.main',
+                  fontSize: '3rem',
+                }}
+                src={avatarPreview || undefined}
+              >
+                {!avatarPreview && getInitials(editingTherapist || { id: 0, firstName: formData.firstName, lastName: formData.lastName, priority: formData.priority || 5, createdAt: '', updatedAt: '' })}
+              </Avatar>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="avatar-upload"
+                  type="file"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="avatar-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    startIcon={<PhotoCamera />}
+                    size="small"
+                  >
+                    {avatarPreview ? 'Change Avatar' : 'Upload Avatar'}
+                  </Button>
+                </label>
+                {avatarPreview && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    size="small"
+                    onClick={handleRemoveAvatar}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </Box>
+              {uploadingAvatar && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={16} />
+                  <Typography variant="body2" color="text.secondary">
+                    Uploading avatar...
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+            
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="First Name"
@@ -512,8 +646,8 @@ const Therapists: React.FC = () => {
                 }))}
                 placeholder="Enter first name"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Last Name"
@@ -524,8 +658,8 @@ const Therapists: React.FC = () => {
                 }))}
                 placeholder="Enter last name"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <FormControl fullWidth>
                 <InputLabel>Priority</InputLabel>
                 <Select
@@ -548,13 +682,13 @@ const Therapists: React.FC = () => {
                   <MenuItem value={10}>10 - Highest</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {(!formData.firstName && !formData.lastName) && 'At least one name field should be filled'}
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
@@ -564,10 +698,11 @@ const Therapists: React.FC = () => {
             disabled={
               (!formData.firstName && !formData.lastName) ||
               createMutation.isPending ||
-              updateMutation.isPending
+              updateMutation.isPending ||
+              uploadingAvatar
             }
           >
-            {editingTherapist ? 'Update' : 'Create'}
+            {uploadingAvatar ? 'Uploading...' : editingTherapist ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>

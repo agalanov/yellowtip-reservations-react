@@ -20,7 +20,6 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  Grid,
   InputAdornment,
   Tooltip,
   MenuItem,
@@ -39,7 +38,6 @@ import {
   Category,
   CheckCircle,
   Cancel,
-  Palette,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '../../services/api';
@@ -353,14 +351,14 @@ const Categories: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           {selectedCategory && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Name
                 </Typography>
                 <Typography variant="body1">{selectedCategory.name}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Status
                 </Typography>
@@ -369,21 +367,21 @@ const Categories: React.FC = () => {
                 ) : (
                   <Chip label="Inactive" size="small" color="default" />
                 )}
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Parent ID
                 </Typography>
                 <Typography variant="body1">{selectedCategory.parentId || 'Root'}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Services Count
                 </Typography>
                 <Typography variant="body1">{selectedCategory._count?.services || 0}</Typography>
-              </Grid>
+              </Box>
               {selectedCategory.color && (
-                <Grid item xs={12}>
+                <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                     Color
                   </Typography>
@@ -400,21 +398,21 @@ const Categories: React.FC = () => {
                       #{selectedCategory.color.hexCode}
                     </Typography>
                   </Box>
-                </Grid>
+                </Box>
               )}
-              <Grid item xs={12} sm={6}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Created At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedCategory.createdAt)}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Updated At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedCategory.updatedAt)}</Typography>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -444,8 +442,8 @@ const Categories: React.FC = () => {
           {editingCategory ? 'Edit Category' : 'Create New Category'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Category Name"
@@ -458,8 +456,8 @@ const Categories: React.FC = () => {
                 error={!formData.name.trim()}
                 helperText={!formData.name.trim() ? 'Category name is required' : ''}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Parent ID"
@@ -472,8 +470,8 @@ const Categories: React.FC = () => {
                 }))}
                 helperText="0 for root category"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <FormControl fullWidth>
                 <InputLabel>Color</InputLabel>
                 <Select
@@ -502,8 +500,8 @@ const Categories: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <FormControlLabel
                 control={
                   <Switch
@@ -516,8 +514,8 @@ const Categories: React.FC = () => {
                 }
                 label="Active"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>

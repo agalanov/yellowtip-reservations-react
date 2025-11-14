@@ -20,7 +20,6 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  Grid,
   InputAdornment,
   Tooltip,
   Avatar,
@@ -33,7 +32,6 @@ import {
   Delete,
   Visibility,
   Search,
-  Person,
   CalendarToday,
   Spa,
   Room as RoomIcon,
@@ -66,7 +64,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const Guests: React.FC = () => {
-  const [filters, setFilters] = useState<GuestFilters>({
+  const [filters] = useState<GuestFilters>({
     page: 1,
     limit: 20,
   });
@@ -229,8 +227,8 @@ const Guests: React.FC = () => {
       {/* Search */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={4}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 10px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 placeholder="Search guests..."
@@ -244,8 +242,8 @@ const Guests: React.FC = () => {
                   ),
                 }}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
@@ -390,8 +388,8 @@ const Guests: React.FC = () => {
               </Box>
 
               <TabPanel value={detailTab} index={0}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                       <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.main', fontSize: '1.5rem' }}>
                         {getInitials(selectedGuest)}
@@ -403,32 +401,32 @@ const Guests: React.FC = () => {
                         </Typography>
                       </Box>
                     </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  </Box>
+                  <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                     <Typography variant="subtitle2" color="text.secondary">
                       First Name
                     </Typography>
                     <Typography variant="body1">{selectedGuest.firstName || '-'}</Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  </Box>
+                  <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Last Name
                     </Typography>
                     <Typography variant="body1">{selectedGuest.lastName || '-'}</Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  </Box>
+                  <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Created At
                     </Typography>
                     <Typography variant="body1">{formatDate(selectedGuest.createdAt)}</Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  </Box>
+                  <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Updated At
                     </Typography>
                     <Typography variant="body1">{formatDate(selectedGuest.updatedAt)}</Typography>
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </TabPanel>
 
               <TabPanel value={detailTab} index={1}>
@@ -494,9 +492,9 @@ const Guests: React.FC = () => {
 
               <TabPanel value={detailTab} index={2}>
                 {selectedGuest.attributes && selectedGuest.attributes.length > 0 ? (
-                  <Grid container spacing={2}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                     {selectedGuest.attributes.map((attr, index) => (
-                      <Grid item xs={12} sm={6} key={index}>
+                      <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }} key={index}>
                         <Card variant="outlined">
                           <CardContent>
                             <Typography variant="subtitle2" color="text.secondary">
@@ -505,9 +503,9 @@ const Guests: React.FC = () => {
                             <Typography variant="body1">{attr.value}</Typography>
                           </CardContent>
                         </Card>
-                      </Grid>
+                      </Box>
                     ))}
-                  </Grid>
+                  </Box>
                 ) : (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
@@ -546,8 +544,8 @@ const Guests: React.FC = () => {
           {editingGuest ? 'Edit Guest' : 'Create New Guest'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="First Name"
@@ -558,8 +556,8 @@ const Guests: React.FC = () => {
                 }))}
                 placeholder="Enter first name"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Last Name"
@@ -570,13 +568,13 @@ const Guests: React.FC = () => {
                 }))}
                 placeholder="Enter last name"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {(!formData.firstName && !formData.lastName) && 'At least one name field should be filled'}
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>

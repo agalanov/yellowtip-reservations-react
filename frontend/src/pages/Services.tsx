@@ -22,7 +22,6 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  Grid,
   InputAdornment,
   Tooltip,
   MenuItem,
@@ -248,8 +247,8 @@ const Services: React.FC = () => {
       {/* Search and Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={4}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 10px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 placeholder="Search services..."
@@ -263,8 +262,8 @@ const Services: React.FC = () => {
                   ),
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 10px)' }, minWidth: 0 }}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -284,8 +283,8 @@ const Services: React.FC = () => {
                   <MenuItem value="false">Inactive</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
@@ -423,14 +422,14 @@ const Services: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           {selectedService && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Name
                 </Typography>
                 <Typography variant="body1">{selectedService.name}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Status
                 </Typography>
@@ -439,8 +438,8 @@ const Services: React.FC = () => {
                 ) : (
                   <Chip label="Inactive" size="small" color="default" />
                 )}
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Category
                 </Typography>
@@ -452,53 +451,53 @@ const Services: React.FC = () => {
                     color: selectedService.category.textcolor || '#000',
                   }}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Currency
                 </Typography>
                 <Typography variant="body1">
                   {selectedService.currency.code} ({selectedService.currency.symbol})
                 </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Price
                 </Typography>
                 <Typography variant="body1">
                   {formatPrice(selectedService.price, selectedService.currency.symbol)}
                 </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Duration
                 </Typography>
                 <Typography variant="body1">
                   {formatDuration(selectedService.duration)}
                 </Typography>
-              </Grid>
+              </Box>
               {selectedService.description && (
-                <Grid item xs={12}>
+                <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Description
                   </Typography>
                   <Typography variant="body1">{selectedService.description}</Typography>
-                </Grid>
+                </Box>
               )}
-              <Grid item xs={12} sm={6}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Created At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedService.createdAt)}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Updated At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedService.updatedAt)}</Typography>
-              </Grid>
+              </Box>
               {selectedService.rooms && selectedService.rooms.length > 0 && (
-                <Grid item xs={12}>
+                <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                     Available Rooms ({selectedService.rooms.length})
                   </Typography>
@@ -512,9 +511,9 @@ const Services: React.FC = () => {
                       />
                     ))}
                   </Box>
-                </Grid>
+                </Box>
               )}
-            </Grid>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -544,8 +543,8 @@ const Services: React.FC = () => {
           {editingService ? 'Edit Service' : 'Create New Service'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Service Name"
@@ -558,8 +557,8 @@ const Services: React.FC = () => {
                 error={!formData.name.trim()}
                 helperText={!formData.name.trim() ? 'Service name is required' : ''}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Category ID"
@@ -573,8 +572,8 @@ const Services: React.FC = () => {
                 error={!formData.categoryId || formData.categoryId <= 0}
                 helperText={(!formData.categoryId || formData.categoryId <= 0) ? 'Category ID is required' : ''}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Currency ID"
@@ -588,8 +587,8 @@ const Services: React.FC = () => {
                 error={!formData.currencyId || formData.currencyId <= 0}
                 helperText={(!formData.currencyId || formData.currencyId <= 0) ? 'Currency ID is required' : ''}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Description"
@@ -601,8 +600,8 @@ const Services: React.FC = () => {
                   description: e.target.value,
                 }))}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Price"
@@ -617,8 +616,8 @@ const Services: React.FC = () => {
                   startAdornment: <InputAdornment position="start">$</InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Duration (minutes)"
@@ -633,8 +632,8 @@ const Services: React.FC = () => {
                   startAdornment: <InputAdornment position="start"><AccessTime fontSize="small" /></InputAdornment>,
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Pre-Duration (minutes)"
@@ -646,8 +645,8 @@ const Services: React.FC = () => {
                   preDuration: Number(e.target.value) || 0,
                 }))}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Post-Duration (minutes)"
@@ -659,8 +658,8 @@ const Services: React.FC = () => {
                   postDuration: Number(e.target.value) || 0,
                 }))}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <FormControlLabel
                 control={
                   <Switch
@@ -673,8 +672,8 @@ const Services: React.FC = () => {
                 }
                 label="Active"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Space"
@@ -686,8 +685,8 @@ const Services: React.FC = () => {
                   space: Number(e.target.value) || 1,
                 }))}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>

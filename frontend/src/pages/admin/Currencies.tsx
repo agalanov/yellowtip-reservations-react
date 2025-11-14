@@ -20,7 +20,6 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  Grid,
   InputAdornment,
   Tooltip,
   FormControlLabel,
@@ -34,7 +33,6 @@ import {
   Search,
   AttachMoney,
   CheckCircle,
-  Cancel,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '../../services/api';
@@ -317,28 +315,28 @@ const Currencies: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           {selectedCurrency && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Code
                 </Typography>
                 <Typography variant="body1">{selectedCurrency.code}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Name
                 </Typography>
                 <Typography variant="body1">{selectedCurrency.name}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Symbol
                 </Typography>
                 <Typography variant="body1" fontWeight="medium">
                   {selectedCurrency.symbol}
                 </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Base Currency
                 </Typography>
@@ -347,20 +345,20 @@ const Currencies: React.FC = () => {
                 ) : (
                   <Chip label="No" size="small" color="default" />
                 )}
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Services Count
                 </Typography>
                 <Typography variant="body1">{selectedCurrency._count?.services || 0}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Created At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedCurrency.createdAt)}</Typography>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -390,8 +388,8 @@ const Currencies: React.FC = () => {
           {editingCurrency ? 'Edit Currency' : 'Create New Currency'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Currency Code"
@@ -405,8 +403,8 @@ const Currencies: React.FC = () => {
                 helperText={!formData.code.trim() ? 'Currency code is required (e.g., USD, EUR)' : 'e.g., USD, EUR'}
                 placeholder="USD"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Currency Symbol"
@@ -420,8 +418,8 @@ const Currencies: React.FC = () => {
                 helperText={!formData.symbol.trim() ? 'Symbol is required' : 'e.g., $, €, £'}
                 placeholder="$"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Currency Name"
@@ -435,8 +433,8 @@ const Currencies: React.FC = () => {
                 helperText={!formData.name.trim() ? 'Currency name is required' : ''}
                 placeholder="US Dollar"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <FormControlLabel
                 control={
                   <Switch
@@ -452,8 +450,8 @@ const Currencies: React.FC = () => {
               <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
                 Base currency is used as the default currency for the system
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>

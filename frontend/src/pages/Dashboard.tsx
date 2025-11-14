@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Box,
-  Grid,
   Card,
   CardContent,
   Typography,
@@ -67,9 +66,6 @@ const Dashboard: React.FC = () => {
     queryKey: ['dashboard-stats'],
     queryFn: () => apiService.getDashboardStats(),
     retry: 1,
-    onError: (error) => {
-      console.error('Dashboard data fetch error:', error);
-    },
   });
 
   if (isLoading) {
@@ -143,59 +139,59 @@ const Dashboard: React.FC = () => {
         Dashboard
       </Typography>
       
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={2}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(16.666% - 20px)' }, minWidth: 0 }}>
           <StatCard
             title="Today's Bookings"
             value={stats?.todayBookings || 0}
             icon={<CalendarToday />}
             color="#1976d2"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(16.666% - 20px)' }, minWidth: 0 }}>
           <StatCard
             title="Active Bookings"
             value={stats?.totalActiveBookings || 0}
             icon={<TrendingUp />}
             color="#388e3c"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(16.666% - 20px)' }, minWidth: 0 }}>
           <StatCard
             title="Total Guests"
             value={stats?.totalGuests || 0}
             icon={<Person />}
             color="#f57c00"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(16.666% - 20px)' }, minWidth: 0 }}>
           <StatCard
             title="Therapists"
             value={stats?.totalTherapists || 0}
             icon={<Spa />}
             color="#7b1fa2"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(16.666% - 20px)' }, minWidth: 0 }}>
           <StatCard
             title="Rooms"
             value={stats?.totalRooms || 0}
             icon={<Room />}
             color="#d32f2f"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={2}>
+        </Box>
+        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(16.666% - 20px)' }, minWidth: 0 }}>
           <StatCard
             title="Services"
             value={stats?.totalServices || 0}
             icon={<Spa />}
             color="#455a64"
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+        <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -243,8 +239,8 @@ const Dashboard: React.FC = () => {
               </TableContainer>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

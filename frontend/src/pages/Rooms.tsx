@@ -22,7 +22,6 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  Grid,
   InputAdornment,
   Tooltip,
   MenuItem,
@@ -189,8 +188,8 @@ const Rooms: React.FC = () => {
       {/* Search and Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={4}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 10px)' }, minWidth: 0 }}>
               <TextField
                 fullWidth
                 placeholder="Search rooms..."
@@ -204,8 +203,8 @@ const Rooms: React.FC = () => {
                   ),
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 10px)' }, minWidth: 0 }}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -225,8 +224,8 @@ const Rooms: React.FC = () => {
                   <MenuItem value="false">Inactive</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
@@ -352,14 +351,14 @@ const Rooms: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           {selectedRoom && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Name
                 </Typography>
                 <Typography variant="body1">{selectedRoom.name}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Status
                 </Typography>
@@ -368,35 +367,35 @@ const Rooms: React.FC = () => {
                 ) : (
                   <Chip label="Inactive" size="small" color="default" />
                 )}
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Priority
                 </Typography>
                 <Typography variant="body1">{selectedRoom.priority}</Typography>
-              </Grid>
+              </Box>
               {selectedRoom.description && (
-                <Grid item xs={12}>
+                <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Description
                   </Typography>
                   <Typography variant="body1">{selectedRoom.description}</Typography>
-                </Grid>
+                </Box>
               )}
-              <Grid item xs={12} sm={6}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Created At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedRoom.createdAt)}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Updated At
                 </Typography>
                 <Typography variant="body1">{formatDate(selectedRoom.updatedAt)}</Typography>
-              </Grid>
+              </Box>
               {selectedRoom.services && selectedRoom.services.length > 0 && (
-                <Grid item xs={12}>
+                <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                     Services ({selectedRoom.services.length})
                   </Typography>
@@ -410,9 +409,9 @@ const Rooms: React.FC = () => {
                       />
                     ))}
                   </Box>
-                </Grid>
+                </Box>
               )}
-            </Grid>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -442,8 +441,8 @@ const Rooms: React.FC = () => {
           {editingRoom ? 'Edit Room' : 'Create New Room'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Room Name"
@@ -456,8 +455,8 @@ const Rooms: React.FC = () => {
                 error={!formData.name.trim()}
                 helperText={!formData.name.trim() ? 'Room name is required' : ''}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Description"
@@ -469,8 +468,8 @@ const Rooms: React.FC = () => {
                   description: e.target.value,
                 }))}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <FormControl fullWidth>
                 <InputLabel>Priority</InputLabel>
                 <Select
@@ -493,8 +492,8 @@ const Rooms: React.FC = () => {
                   <MenuItem value={10}>10 - Highest</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)' }, minWidth: 0 }}>
               <FormControlLabel
                 control={
                   <Switch
@@ -507,8 +506,8 @@ const Rooms: React.FC = () => {
                 }
                 label="Active"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>

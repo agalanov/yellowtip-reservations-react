@@ -64,13 +64,15 @@ router.get('/overview', [
 
     const dateFromTimestamp = Math.floor(dateFrom.getTime() / 1000);
     const dateToTimestamp = Math.floor(dateTo.getTime() / 1000);
+    const ymdFrom = dateFrom.getFullYear() * 10000 + (dateFrom.getMonth() + 1) * 100 + dateFrom.getDate();
+    const ymdTo = dateTo.getFullYear() * 10000 + (dateTo.getMonth() + 1) * 100 + dateTo.getDate();
 
     // Build where clause for bookings
     const bookingWhere: any = {
-      date: {
-        gte: dateFromTimestamp,
-        lte: dateToTimestamp,
-      },
+      OR: [
+        { date: { gte: dateFromTimestamp, lte: dateToTimestamp } },
+        { date: { gte: ymdFrom, lte: ymdTo } },
+      ],
     };
 
     if (filters.roomId) bookingWhere.roomId = Number(filters.roomId);
@@ -218,7 +220,17 @@ router.get('/overview', [
     // Transform data to match frontend expectations
     const transformedBookings = bookings.map(booking => ({
       id: booking.id,
-      date: booking.date,
+      date: (() => {
+        const raw = Number(booking.date);
+        if (raw >= 19000101 && raw <= 30000101) {
+          const y = Math.floor(raw / 10000);
+          const m = Math.floor((raw % 10000) / 100) - 1;
+          const d = raw % 100;
+          return Math.floor(Date.UTC(y, m, d, 0, 0, 0) / 1000);
+        }
+        if (raw > 1000000000000) return Math.floor(raw / 1000);
+        return raw;
+      })(),
       time: booking.time,
       service: {
         id: booking.service.id,
@@ -244,6 +256,8 @@ router.get('/overview', [
         firstName: booking.therapist.firstName || undefined,
         lastName: booking.therapist.lastName || undefined,
       } : undefined,
+      preDuration: booking.preDuration || 0,
+      postDuration: booking.postDuration || 0,
       confirmed: booking.confirmed,
       cancelled: booking.cancelled,
       comment: booking.comment || undefined,
@@ -431,6 +445,8 @@ router.get('/rooms', [
 
     const dateFromTimestamp = Math.floor(dateFrom.getTime() / 1000);
     const dateToTimestamp = Math.floor(dateTo.getTime() / 1000);
+    const ymdFrom = dateFrom.getFullYear() * 10000 + (dateFrom.getMonth() + 1) * 100 + dateFrom.getDate();
+    const ymdTo = dateTo.getFullYear() * 10000 + (dateTo.getMonth() + 1) * 100 + dateTo.getDate();
 
     // Get rooms
     const rooms = await prisma.room.findMany({
@@ -454,10 +470,10 @@ router.get('/rooms', [
     // Get bookings for the date range
     const bookings = await prisma.booking.findMany({
       where: {
-        date: {
-          gte: dateFromTimestamp,
-          lte: dateToTimestamp,
-        },
+        OR: [
+          { date: { gte: dateFromTimestamp, lte: dateToTimestamp } },
+          { date: { gte: ymdFrom, lte: ymdTo } },
+        ],
         ...(filters.roomId && { roomId: Number(filters.roomId) }),
       },
       include: {
@@ -518,7 +534,17 @@ router.get('/rooms', [
 
     const transformedBookings = bookings.map(booking => ({
       id: booking.id,
-      date: booking.date,
+      date: (() => {
+        const raw = Number(booking.date);
+        if (raw >= 19000101 && raw <= 30000101) {
+          const y = Math.floor(raw / 10000);
+          const m = Math.floor((raw % 10000) / 100) - 1;
+          const d = raw % 100;
+          return Math.floor(Date.UTC(y, m, d, 0, 0, 0) / 1000);
+        }
+        if (raw > 1000000000000) return Math.floor(raw / 1000);
+        return raw;
+      })(),
       time: booking.time,
       service: {
         id: booking.service.id,
@@ -544,6 +570,8 @@ router.get('/rooms', [
         firstName: booking.therapist.firstName || undefined,
         lastName: booking.therapist.lastName || undefined,
       } : undefined,
+      preDuration: booking.preDuration || 0,
+      postDuration: booking.postDuration || 0,
       confirmed: booking.confirmed,
       cancelled: booking.cancelled,
       comment: booking.comment || undefined,
@@ -610,6 +638,8 @@ router.get('/therapists', [
 
     const dateFromTimestamp = Math.floor(dateFrom.getTime() / 1000);
     const dateToTimestamp = Math.floor(dateTo.getTime() / 1000);
+    const ymdFrom = dateFrom.getFullYear() * 10000 + (dateFrom.getMonth() + 1) * 100 + dateFrom.getDate();
+    const ymdTo = dateTo.getFullYear() * 10000 + (dateTo.getMonth() + 1) * 100 + dateTo.getDate();
 
     // Get therapists
     const therapists = await prisma.therapist.findMany({
@@ -640,10 +670,10 @@ router.get('/therapists', [
     // Get bookings for the date range
     const bookings = await prisma.booking.findMany({
       where: {
-        date: {
-          gte: dateFromTimestamp,
-          lte: dateToTimestamp,
-        },
+        OR: [
+          { date: { gte: dateFromTimestamp, lte: dateToTimestamp } },
+          { date: { gte: ymdFrom, lte: ymdTo } },
+        ],
         ...(filters.therapistId && { therapistId: Number(filters.therapistId) }),
       },
       include: {
@@ -708,7 +738,17 @@ router.get('/therapists', [
 
     const transformedBookings = bookings.map(booking => ({
       id: booking.id,
-      date: booking.date,
+      date: (() => {
+        const raw = Number(booking.date);
+        if (raw >= 19000101 && raw <= 30000101) {
+          const y = Math.floor(raw / 10000);
+          const m = Math.floor((raw % 10000) / 100) - 1;
+          const d = raw % 100;
+          return Math.floor(Date.UTC(y, m, d, 0, 0, 0) / 1000);
+        }
+        if (raw > 1000000000000) return Math.floor(raw / 1000);
+        return raw;
+      })(),
       time: booking.time,
       service: {
         id: booking.service.id,
@@ -734,6 +774,8 @@ router.get('/therapists', [
         firstName: booking.therapist.firstName || undefined,
         lastName: booking.therapist.lastName || undefined,
       } : undefined,
+      preDuration: booking.preDuration || 0,
+      postDuration: booking.postDuration || 0,
       confirmed: booking.confirmed,
       cancelled: booking.cancelled,
       comment: booking.comment || undefined,
@@ -802,13 +844,15 @@ router.get('/calendar', [
 
     const dateFromTimestamp = Math.floor(dateFrom.getTime() / 1000);
     const dateToTimestamp = Math.floor(dateTo.getTime() / 1000);
+    const ymdFrom = dateFrom.getFullYear() * 10000 + (dateFrom.getMonth() + 1) * 100 + dateFrom.getDate();
+    const ymdTo = dateTo.getFullYear() * 10000 + (dateTo.getMonth() + 1) * 100 + dateTo.getDate();
 
     // Build where clause for bookings
     const bookingWhere: any = {
-      date: {
-        gte: dateFromTimestamp,
-        lte: dateToTimestamp,
-      },
+      OR: [
+        { date: { gte: dateFromTimestamp, lte: dateToTimestamp } },
+        { date: { gte: ymdFrom, lte: ymdTo } },
+      ],
     };
 
     if (filters.roomId) bookingWhere.roomId = Number(filters.roomId);
@@ -866,7 +910,17 @@ router.get('/calendar', [
     // Transform data
     const transformedBookings = bookings.map(booking => ({
       id: booking.id,
-      date: booking.date,
+      date: (() => {
+        const raw = Number(booking.date);
+        if (raw >= 19000101 && raw <= 30000101) {
+          const y = Math.floor(raw / 10000);
+          const m = Math.floor((raw % 10000) / 100) - 1;
+          const d = raw % 100;
+          return Math.floor(Date.UTC(y, m, d, 0, 0, 0) / 1000);
+        }
+        if (raw > 1000000000000) return Math.floor(raw / 1000);
+        return raw;
+      })(),
       time: booking.time,
       service: {
         id: booking.service.id,
@@ -892,6 +946,8 @@ router.get('/calendar', [
         firstName: booking.therapist.firstName || undefined,
         lastName: booking.therapist.lastName || undefined,
       } : undefined,
+      preDuration: booking.preDuration || 0,
+      postDuration: booking.postDuration || 0,
       confirmed: booking.confirmed,
       cancelled: booking.cancelled,
       comment: booking.comment || undefined,

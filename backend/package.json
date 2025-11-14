@@ -17,7 +17,12 @@
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
-  "keywords": ["reservations", "spa", "booking", "api"],
+  "keywords": [
+    "reservations",
+    "spa",
+    "booking",
+    "api"
+  ],
   "author": "Myolika Team",
   "license": "ISC",
   "dependencies": {
@@ -32,6 +37,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "nodemon": "^3.0.0",
     "prisma": "^6.18.0"
   },
@@ -42,6 +48,7 @@
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.9.1",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",

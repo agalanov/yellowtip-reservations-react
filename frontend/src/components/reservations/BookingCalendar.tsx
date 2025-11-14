@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -58,12 +58,20 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
 
-  // Generate calendar events
+  // Sync selectedDate with date prop when it changes
+  useEffect(() => {
+    setSelectedDate(date);
+  }, [date]);
+
+  // Generate calendar events (span pre/post durations to mark reserved time)
   const calendarEvents = useMemo(() => {
     return bookings.map(booking => {
-      const start = dayjs(booking.date * 1000).add(booking.time, 'seconds');
-      const end = start.add(booking.service.duration, 'minutes');
-      
+      const actualStart = dayjs(booking.date * 1000).add(booking.time, 'seconds');
+      const pre = booking.preDuration || 0;
+      const post = booking.postDuration || 0;
+      const start = actualStart.subtract(pre, 'minute');
+      const end = actualStart.add((booking.service.duration || 0) + post, 'minute');
+
       return {
         booking,
         start,
@@ -130,7 +138,12 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
   const getBookingColor = (booking: Booking): string => {
     if (booking.cancelled) return '#f44336';
     if (booking.confirmed) return '#4caf50';
-    return '#ff9800';
+    return booking.service.category?.hexcode || '#ff9800';
+  };
+
+  const getBookingTextColor = (booking: Booking): string => {
+    if (booking.cancelled || booking.confirmed) return '#ffffff';
+    return booking.service.category?.textcolor || '#ffffff';
   };
 
   const handleEventClick = (event: CalendarEvent) => {
@@ -200,7 +213,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
                           right: 0,
                           height: `${Math.max(30, event.duration * 0.5)}px`,
                           backgroundColor: getBookingColor(event.booking),
-                          color: 'white',
+                          color: getBookingTextColor(event.booking),
                           cursor: 'pointer',
                           '&:hover': { boxShadow: 3 },
                           zIndex: 1,
@@ -208,13 +221,13 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
                         onClick={() => handleEventClick(event)}
                       >
                         <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                          <Typography variant="body2" sx={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
-                            {formatTime(event.booking.time)}
+                        <Typography variant="body2" sx={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
+                            {event.start.format('HH:mm')}
                           </Typography>
-                          <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>
+                        <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>
                             {event.booking.service.name}
                           </Typography>
-                          <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>
+                        <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>
                             {event.booking.guest.firstName} {event.booking.guest.lastName}
                           </Typography>
                         </CardContent>
@@ -280,7 +293,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
                       sx={{
                         mb: 0.5,
                         backgroundColor: getBookingColor(event.booking),
-                        color: 'white',
+                        color: getBookingTextColor(event.booking),
                         cursor: 'pointer',
                         '&:hover': { boxShadow: 2 },
                       }}
@@ -288,7 +301,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
                     >
                       <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
                         <Typography variant="body2" sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
-                          {formatTime(event.booking.time)}
+                          {event.start.format('HH:mm')}
                         </Typography>
                         <Typography variant="body2" sx={{ fontSize: '0.65rem' }}>
                           {event.booking.service.name}
@@ -357,12 +370,12 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
                   {events.slice(0, 3).map((event) => (
                     <Chip
                       key={event.booking.id}
-                      label={`${formatTime(event.booking.time)} ${event.booking.service.name}`}
+                      label={`${event.start.format('HH:mm')} ${event.booking.service.name}`}
                       size="small"
                       sx={{
                         mb: 0.5,
                         backgroundColor: getBookingColor(event.booking),
-                        color: 'white',
+                        color: getBookingTextColor(event.booking),
                         fontSize: '0.65rem',
                         height: 20,
                         cursor: 'pointer',

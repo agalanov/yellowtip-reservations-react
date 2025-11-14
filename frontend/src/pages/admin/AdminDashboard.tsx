@@ -2,18 +2,15 @@ import React from 'react';
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   Button,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   Divider,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
   Person,
   Category,
   AttachMoney,
@@ -81,9 +78,9 @@ const AdminDashboard: React.FC = () => {
         Manage system settings, users, and business configurations
       </Typography>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
         {adminSections.map((section, sectionIndex) => (
-          <Grid item xs={12} md={4} key={sectionIndex}>
+          <Box key={sectionIndex} sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 16px)' }, minWidth: 0 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -124,9 +121,9 @@ const AdminDashboard: React.FC = () => {
                 </List>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* Quick Stats */}
       <Box sx={{ mt: 4 }}>
@@ -135,8 +132,8 @@ const AdminDashboard: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Quick Actions
             </Typography>
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6} md={3}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -145,8 +142,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Manage Users
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -155,8 +152,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Manage Categories
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -165,8 +162,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Manage Currencies
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -175,8 +172,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   System Config
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -185,8 +182,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Roles & Permissions
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -195,8 +192,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Countries
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -205,8 +202,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Cities
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -215,8 +212,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Languages
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -225,8 +222,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Taxes
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              </Box>
+              <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }, minWidth: 0 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -235,8 +232,8 @@ const AdminDashboard: React.FC = () => {
                 >
                   Opening Hours
                 </Button>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </CardContent>
         </Card>
       </Box>

@@ -251,6 +251,21 @@ class ApiService {
     await this.api.delete(`/therapists/${id}`);
   }
 
+  async uploadTherapistAvatar(id: number, file: File): Promise<{ avatarUrl: string }> {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const response = await this.api.post<ApiResponse<{ avatarUrl: string }>>(
+      `/therapists/${id}/avatar`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data.data!;
+  }
+
   // Admin endpoints
   async getDashboardStats(): Promise<DashboardStats> {
     const response = await this.api.get<ApiResponse<DashboardStats>>('/admin/dashboard');

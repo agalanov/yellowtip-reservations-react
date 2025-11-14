@@ -43,6 +43,10 @@ export interface Booking {
     name: string;
     duration: number;
     price: number;
+    category?: {
+      hexcode?: string;
+      textcolor?: string;
+    };
   };
   room: {
     id: number;
@@ -58,6 +62,8 @@ export interface Booking {
     firstName?: string;
     lastName?: string;
   };
+  preDuration?: number;
+  postDuration?: number;
   confirmed: boolean;
   cancelled: boolean;
   comment?: string;

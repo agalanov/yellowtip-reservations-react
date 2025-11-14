@@ -68,7 +68,7 @@ const ReservationsOverview: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  // Fetch bookings data
+  // Fetch bookings data for Room and Therapist overviews
   const {
     data: bookingsData,
     isLoading,
@@ -82,6 +82,21 @@ const ReservationsOverview: React.FC = () => {
     }),
   });
 
+  // Fetch calendar data separately for Calendar view
+  const {
+    data: calendarData,
+    isLoading: isCalendarLoading,
+    error: calendarError,
+    refetch: refetchCalendar,
+  } = useQuery({
+    queryKey: ['calendar', selectedDate.format('YYYY-MM-DD'), viewMode],
+    queryFn: () => apiService.getCalendarView({
+      date: selectedDate.format('YYYY-MM-DD'),
+      viewMode,
+    }),
+    enabled: activeTab === 2, // Only fetch when calendar tab is active
+  });
+
   // Fetch quick booking data
   const { data: quickBookingData } = useQuery({
     queryKey: ['quick-booking'],
@@ -91,7 +106,15 @@ const ReservationsOverview: React.FC = () => {
   const createBookingMutation = useMutation({
     mutationFn: (booking: BookingRequest) => apiService.createBooking(booking),
     onSuccess: () => {
+      // Invalidate all related queries
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      // Explicitly refetch the current reservations query
+      refetch();
+      if (activeTab === 2) {
+        refetchCalendar();
+      }
       setBookingDialogOpen(false);
     },
   });
@@ -100,7 +123,15 @@ const ReservationsOverview: React.FC = () => {
     mutationFn: ({ id, data }: { id: number; data: Partial<BookingRequest> }) =>
       apiService.updateBooking(id, data),
     onSuccess: () => {
+      // Invalidate all related queries
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      // Explicitly refetch the current reservations query
+      refetch();
+      if (activeTab === 2) {
+        refetchCalendar();
+      }
       setBookingDialogOpen(false);
       setEditingBooking(null);
     },
@@ -152,7 +183,7 @@ const ReservationsOverview: React.FC = () => {
     // Pre-fill service in dialog
   };
 
-  if (isLoading) {
+  if (isLoading || (activeTab === 2 && isCalendarLoading)) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <CircularProgress />
@@ -160,7 +191,7 @@ const ReservationsOverview: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error || (activeTab === 2 && calendarError)) {
     return (
       <Alert severity="error" sx={{ mt: 2 }}>
         Failed to load reservations data
@@ -184,7 +215,12 @@ const ReservationsOverview: React.FC = () => {
             <Button
               variant="outlined"
               startIcon={<Refresh />}
-              onClick={() => refetch()}
+              onClick={() => {
+                refetch();
+                if (activeTab === 2) {
+                  refetchCalendar();
+                }
+              }}
             >
               Refresh
             </Button>
@@ -283,7 +319,7 @@ const ReservationsOverview: React.FC = () => {
             <BookingCalendar
               date={selectedDate}
               viewMode={viewMode}
-              bookings={bookingsData?.bookings || []}
+              bookings={calendarData?.bookings || []}
               onEditBooking={handleEditBooking}
               onViewBooking={handleViewBooking}
             />

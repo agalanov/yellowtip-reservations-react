@@ -16,10 +16,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Card,
   CardContent,
   CircularProgress,
@@ -29,7 +25,6 @@ import {
   Checkbox,
   FormControlLabel,
   Divider,
-  Grid,
   Badge,
 } from '@mui/material';
 import {
@@ -61,7 +56,7 @@ function TabPanel(props: TabPanelProps) {
 
 const Roles: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
-  const [filters, setFilters] = useState({ page: 1, limit: 50 });
+  const [filters] = useState({ page: 1, limit: 50 });
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedRight, setSelectedRight] = useState<AccessRight | null>(null);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
@@ -441,8 +436,8 @@ const Roles: React.FC = () => {
           {editingRole ? 'Edit Role' : 'Create New Role'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Role Name"
@@ -450,8 +445,8 @@ const Roles: React.FC = () => {
                 onChange={(e) => setRoleFormData(prev => ({ ...prev, name: e.target.value }))}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6" gutterBottom>
                 Permissions
@@ -462,9 +457,9 @@ const Roles: React.FC = () => {
                     <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                       {appName}
                     </Typography>
-                    <Grid container spacing={1}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                       {rights.map((right) => (
-                        <Grid item xs={12} sm={6} md={4} key={right.id}>
+                        <Box sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 4px)', md: '1 1 calc(33.333% - 6px)' }, minWidth: 0 }} key={right.id}>
                           <FormControlLabel
                             control={
                               <Checkbox
@@ -474,9 +469,9 @@ const Roles: React.FC = () => {
                             }
                             label={right.name}
                           />
-                        </Grid>
+                        </Box>
                       ))}
-                    </Grid>
+                    </Box>
                   </Box>
                 ))}
                 {allRightsData?.data.length === 0 && (
@@ -485,8 +480,8 @@ const Roles: React.FC = () => {
                   </Typography>
                 )}
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRoleDialogOpen(false)}>Cancel</Button>
@@ -511,8 +506,8 @@ const Roles: React.FC = () => {
           {editingRight ? 'Edit Access Right' : 'Create New Access Right'}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Right Name"
@@ -521,8 +516,8 @@ const Roles: React.FC = () => {
                 required
                 placeholder="e.g., read_bookings, edit_users"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
               <TextField
                 fullWidth
                 label="Application Name"
@@ -531,8 +526,8 @@ const Roles: React.FC = () => {
                 required
                 placeholder="e.g., admin, reservations"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRightDialogOpen(false)}>Cancel</Button>
@@ -556,20 +551,20 @@ const Roles: React.FC = () => {
         <DialogTitle>Role Details</DialogTitle>
         <DialogContent>
           {selectedRole && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Name
                 </Typography>
                 <Typography variant="body1">{selectedRole.name}</Typography>
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Accounts
                 </Typography>
                 <Typography variant="body1">{selectedRole._count?.accounts || 0}</Typography>
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                   Permissions
@@ -606,8 +601,8 @@ const Roles: React.FC = () => {
                     No permissions assigned
                   </Typography>
                 )}
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -625,26 +620,26 @@ const Roles: React.FC = () => {
         <DialogTitle>Access Right Details</DialogTitle>
         <DialogContent>
           {selectedRight && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Name
                 </Typography>
                 <Typography variant="body1">{selectedRight.name}</Typography>
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Application
                 </Typography>
                 <Typography variant="body1">{selectedRight.appName}</Typography>
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Assigned to Roles
                 </Typography>
                 <Typography variant="body1">{selectedRight._count?.roles || 0}</Typography>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
